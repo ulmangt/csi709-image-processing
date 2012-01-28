@@ -14,4 +14,20 @@ tuple, list, set, dictionary
 
 no
 
+4.
 
+no
+
+5.
+
+print G[0]
+
+6.
+
+print G[-1]
+
+7.
+
+len(G)
+
+8.

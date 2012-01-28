@@ -31,3 +31,41 @@ print G[-1]
 len(G)
 
 8.
+
+print st[::2]
+
+9.
+
+print st[::-1]
+
+10.
+
+st1 + st2
+
+11.
+
+st.count('b')
+
+12.
+
+bool (although if a is not defined, a NameError may be thrown)
+
+13.
+
+Both operands are of type integer, so python performs integer arithmetic. Implicitly it is performing:
+
+int ( 9 / 4 )
+
+14.
+
+tuple
+
+15.
+
+import <module_name>
+
+and
+
+from <module_name> import <symbol_list>
+
+

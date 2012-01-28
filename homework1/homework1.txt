@@ -1,0 +1,17 @@
+1.
+
+# Paths in the following commands have been modified for my setup:
+
+import os,sys
+os.chdir("/home/ulman/CSI709/csi709-image-processing")
+sys.path.append("pysrc")
+
+2.
+
+tuple, list, set, dictionary
+
+3.
+
+no
+
+

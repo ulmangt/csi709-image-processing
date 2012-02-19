@@ -1,8 +1,10 @@
 import os, sys, scipy, numpy, Image, sophia, color, eigenimage
 
-def generateEigenImages( directory ):
+def generateEigenImagesDirectory( directory ):
   l = splitImages( directory )
+  return generateEigenImages( l )
 
+def generateEigenImages( imageList ):
   emgs, evls = eigenimage.EigenImages( numpy.array( l[0] ) )
   sorted_l = sorted( zip( evls, emgs ) )
   sorted_l.reverse()
@@ -18,7 +20,10 @@ def splitImages( directory, n=64, m=64 ):
 
   for f in os.listdir( directory ):
     print "Processing: ", f
-    image = Image.open( os.path.join( directory, f ) )
+    try:
+      image = Image.open( os.path.join( directory, f ) )
+    except IOError:
+      print "Trouble opening image: ", f
     l = splitImage( image, n, m )
     l1.extend( l[0] )
     l2.extend( l[1] )

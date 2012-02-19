@@ -4,26 +4,18 @@ def generateEigenImagesDirectory( directory ):
   l = splitImages( directory )
   return generateEigenImages( l )
 
-def generateEigenImagesColor( imageList ):
-  emgs1, evls1 = eigenimage.EigenImages( numpy.array( imageList[0] ) )
-  emgs2, evls2 = eigenimage.EigenImages( numpy.array( imageList[1] ) )
-  emgs3, evls3 = eigenimage.EigenImages( numpy.array( imageList[2] ) )
-
-  return (evls1, evls2, evls3), (emgs1, emgs2, emgs3 );
-
 def generateEigenImages( imageList ):
-  emgs, evls = eigenimage.EigenImages( numpy.array( imageList[0] ) )
+  emgs, evls = eigenimage.EigenImages( numpy.array( imageList ) )
+
   sorted_l = sorted( zip( evls, emgs ) )
   sorted_l.reverse()
   sorted_evls, sorted_emgs = zip( *sorted_l )
 
-  return sorted_evls, sorted_emgs, imageList;
+  return sorted_emgs, sorted_evls
 
 def splitImages( directory, n=64, m=64 ):
   """Given a directory containing images, returns a list of smaller n by m sub-images"""
-  l1 = []
-  l2 = []
-  l3 = []
+  l = []
 
   for f in os.listdir( directory ):
     print "Processing: ", f
@@ -31,12 +23,9 @@ def splitImages( directory, n=64, m=64 ):
       image = Image.open( os.path.join( directory, f ) )
     except IOError:
       print "Trouble opening image: ", f
-    l = splitImage( image, n, m )
-    l1.extend( l[0] )
-    l2.extend( l[1] )
-    l3.extend( l[2] )
+    l.extend( splitImage( image, n, m ) )
 
-  return ( l1, l2, l3 )
+  return l
 
 def splitImage( image, n=64, m=64 ):
   """
@@ -46,9 +35,7 @@ image is not an even multiple of n or m, some parts of the image will not
 be used."""
 
   # create a list for the sub-images
-  l1 = []
-  l2 = []
-  l3 = []
+  l = []
 
   # convert the image to matricies
   r,g,b = sophia.Image2Cube( image )
@@ -79,28 +66,46 @@ be used."""
       c2 = c2 * mask
       c3 = c3 * mask
 
-      l1.append( c1 )
-      l2.append( c2 )
-      l3.append( c3 )
+      c = numpy.zeros((n,3*m))
+
+      # color.RGB2HSV() return h as int on 0 to 255
+      c[:,0:m] = c1 / 255.;
+      c[:,m:2*m] = c2;
+      c[:,2*m:3*m] = c3;
+
+      l.append( c )
 
       yi += m
     xi += n
 
-  return ( l1, l2, l3 )
+  return l
 
 
-def displaySubImage( l, i ):
+def displaySubImage( emgs, i, n=64, m=64 ):
   """
 A debugging function. Given a list of sub-images produced by splitImage and
 an index into the list, displays the sub-image"""
-  r, g, b = color.HSV2RGB( l[0][i], l[1][i], l[2][i] )
-  Image.merge( 'RGB', ( sophia.a2i(r), sophia.a2i(g), sophia.a2i(b) ) ).show()
 
-def displaySubImageRGB( l, i ):
-  """
-A debugging function. Given a list of sub-images produced by splitImage and
-an index into the list, displays the sub-image"""
-  Image.merge( 'RGB', ( sophia.a2i(l[0][i]), sophia.a2i(l[1][i]), sophia.a2i(l[2][i]) ) ).show()
+  h = emgs[i][:,0:m]
+  s = emgs[i][:,m:m*2]
+  v = emgs[i][:,m*2:m*3]
+
+  imh = sophia.a2i( h )
+  ims = sophia.a2i( s )
+  imv = sophia.a2i( v )
+
+  imh.show()
+  ims.show()
+  imv.show()
+
+  r, g, b = color.HSV2RGB( h, s, v )
+
+  imr = sophia.a2i( r )
+  img = sophia.a2i( g )
+  imb = sophia.a2i( b )
+
+  #Image.merge( 'RGB', ( imr, img, imb ) ).show()
+
 
 def subImage( c1, c2, c3, xi, yi, n=64, m=64 ):
   """
@@ -113,3 +118,4 @@ of the image starting at pixel (x,y) of size n by m."""
 
   return ( s1, s2, s3 )
 
+  return emgs, evls;

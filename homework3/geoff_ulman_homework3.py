@@ -1,8 +1,21 @@
-import os, sys, scipy, numpy, Image, sophia, color
+import os, sys, scipy, numpy, Image, sophia, color, eigenimage
 
-def splitImages( imageList, n, m ):
+def generateEigenImages( imageList ):
+  l = splitImages( imageList )
+
+def splitImages( imageList, n=64, m=64 ):
   """Given a list of images, returns a list of smaller n by m sub-images"""
-  return
+  l1 = []
+  l2 = []
+  l3 = []
+
+  for image in imageList:
+    l = splitImage( image, n, m )
+    l1.extend( l[0] )
+    l2.extend( l[1] )
+    l3.extend( l[2] )
+
+  return ( l1, l2, l3 )
 
 def splitImage( image, n=64, m=64 ):
   """
@@ -12,13 +25,15 @@ image is not an even multiple of n or m, some parts of the image will not
 be used."""
 
   # create a list for the sub-images
-  l = []
+  l1 = []
+  l2 = []
+  l3 = []
 
   # convert the image to matricies
   r,g,b = sophia.Image2Cube( image )
 
   # convert the r, g, b matrices to y, u, v colorspace
-  #h,s,v = color.RGB2HSV( r, g, b )
+  h,s,v = color.RGB2HSV( r, g, b )
 
   # get the x and y size of the image
   sizeX = image.size[0]
@@ -36,19 +51,21 @@ be used."""
     while ( yi < sizeY - m ):
 
       # generate sub matrix
-      c1, c2, c3 = subImage( r,g,b, xi, yi, n, m )
+      c1, c2, c3 = subImage( h, s, v, xi, yi, n, m )
 
       # apply mask
       c1 = c1 * mask
       c2 = c2 * mask
       c3 = c3 * mask
 
-      l.append( (c1,c2,c3) )
+      l1.append( c1 )
+      l2.append( c2 )
+      l3.append( c3 )
 
       yi += m
     xi += n
 
-  return l
+  return ( l1, l2, l3 )
 
 
 def displaySubImage( l, i ):
@@ -63,8 +80,7 @@ def displaySubImageRGB( l, i ):
   """
 A debugging function. Given a list of sub-images produced by splitImage and
 an index into the list, displays the sub-image"""
-  r,g,b = l[i]
-  Image.merge( 'RGB', ( sophia.a2i(r), sophia.a2i(g), sophia.a2i(b) ) ).show()
+  Image.merge( 'RGB', ( sophia.a2i(l[0][i]), sophia.a2i(l[1][i]), sophia.a2i(l[2][i]) ) ).show()
 
 def subImage( c1, c2, c3, xi, yi, n=64, m=64 ):
   """

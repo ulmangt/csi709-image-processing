@@ -1,15 +1,24 @@
 import os, sys, scipy, numpy, Image, sophia, color, eigenimage
 
-def generateEigenImages( imageList ):
-  l = splitImages( imageList )
+def generateEigenImages( directory ):
+  l = splitImages( directory )
 
-def splitImages( imageList, n=64, m=64 ):
-  """Given a list of images, returns a list of smaller n by m sub-images"""
+  emgs, evls = eigenimage.EigenImages( numpy.array( l[0] ) )
+  sorted_l = sorted( zip( evls, emgs ) )
+  sorted_l.reverse()
+  sorted_emgs, sorted_evls = zip( *sorted_l )
+
+  return sorted_evls, sorted_emgs, l;
+
+def splitImages( directory, n=64, m=64 ):
+  """Given a directory containing images, returns a list of smaller n by m sub-images"""
   l1 = []
   l2 = []
   l3 = []
 
-  for image in imageList:
+  for f in os.listdir( directory ):
+    print "Processing: ", f
+    image = Image.open( os.path.join( directory, f ) )
     l = splitImage( image, n, m )
     l1.extend( l[0] )
     l2.extend( l[1] )
@@ -44,7 +53,7 @@ be used."""
   yi = 0
 
   # generate a Kaiser Mask
-  mask = sophia.KaiserMask( (n,m), (n/2,m/2), 0, max(n,m)/2 )
+  mask = sophia.KaiserMask( (n,m), (n/2,m/2), 0, int( max(n,m) * 0.7 ) )
 
   while ( xi < sizeX - n ):
     yi = 0
@@ -72,8 +81,7 @@ def displaySubImage( l, i ):
   """
 A debugging function. Given a list of sub-images produced by splitImage and
 an index into the list, displays the sub-image"""
-  h,s,v = l[i]
-  r, g, b = color.HSV2RGB( h, s, v )
+  r, g, b = color.HSV2RGB( l[0][i], l[1][i], l[2][i] )
   Image.merge( 'RGB', ( sophia.a2i(r), sophia.a2i(g), sophia.a2i(b) ) ).show()
 
 def displaySubImageRGB( l, i ):

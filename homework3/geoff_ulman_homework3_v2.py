@@ -41,7 +41,7 @@ be used."""
   r,g,b = sophia.Image2Cube( image )
 
   # convert the r, g, b matrices to y, u, v colorspace
-  h,s,v = color.RGB2HSV( r, g, b )
+  h,s,v = color.RGB2YCbCr( r, g, b )
 
   # get the x and y size of the image
   sizeX = image.size[0]
@@ -94,18 +94,32 @@ an index into the list, displays the sub-image"""
   ims = sophia.a2i( s )
   imv = sophia.a2i( v )
 
-  imh.show()
-  ims.show()
-  imv.show()
+  Image.merge( 'YCbCr', ( imh, ims, imv ) ).show()
 
-  r, g, b = color.HSV2RGB( h, s, v )
 
-  imr = sophia.a2i( r )
-  img = sophia.a2i( g )
-  imb = sophia.a2i( b )
+def displaySubImage( emgs, i, n=64, m=64 ):
+  """
+A debugging function. Given a list of sub-images produced by splitImage and
+an index into the list, displays the sub-image"""
 
-  #Image.merge( 'RGB', ( imr, img, imb ) ).show()
+  # normalize all three components together
+  norm_emgs = normalize( emgs[i] )
 
+  h = norm_emgs[:,0:m]
+  s = norm_emgs[:,m:m*2]
+  v = norm_emgs[:,m*2:m*3]
+
+  imh = sophia.a2i( h )
+  ims = sophia.a2i( s )
+  imv = sophia.a2i( v )
+
+  Image.merge( 'YCbCr', ( imh, ims, imv ) ).show()
+
+def normalize( mat ):
+  ret = numpy.array( mat )
+  ret -= numpy.min( ret )
+  ret *= 255.0 / numpy.max( ret )
+  return ret
 
 def subImage( c1, c2, c3, xi, yi, n=64, m=64 ):
   """

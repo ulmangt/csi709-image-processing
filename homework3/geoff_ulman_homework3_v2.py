@@ -1,11 +1,11 @@
 import os, sys, scipy, numpy, Image, sophia, color, eigenimage
 
-def generateEigenImagesDirectory( directory ):
+def generateEigenImagesDirectory( directory, limit=100 ):
   l = splitImages( directory )
-  return generateEigenImages( l )
+  return generateEigenImages( l, limit )
 
-def generateEigenImages( imageList ):
-  emgs, evls = eigenimage.EigenImages( numpy.array( imageList ) )
+def generateEigenImages( imageList, limit=100 ):
+  emgs, evls = eigenimage.EigenImages( numpy.array( imageList ), limit )
 
   sorted_l = sorted( zip( evls, emgs ) )
   sorted_l.reverse()
@@ -41,7 +41,7 @@ be used."""
   r,g,b = sophia.Image2Cube( image )
 
   # convert the r, g, b matrices to y, u, v colorspace
-  h,s,v = color.RGB2YCbCr( r, g, b )
+  y,u,v = color.RGB2YUV( r, g, b )
 
   # get the x and y size of the image
   sizeX = image.size[0]
@@ -59,7 +59,7 @@ be used."""
     while ( yi < sizeY - m ):
 
       # generate sub matrix
-      c1, c2, c3 = subImage( h, s, v, xi, yi, n, m )
+      c1, c2, c3 = subImage( y, u, v, xi, yi, n, m )
 
       # apply mask
       c1 = c1 * mask
@@ -68,8 +68,7 @@ be used."""
 
       c = numpy.zeros((n,3*m))
 
-      # color.RGB2HSV() return h as int on 0 to 255
-      c[:,0:m] = c1 / 255.;
+      c[:,0:m] = c1;
       c[:,m:2*m] = c2;
       c[:,2*m:3*m] = c3;
 
@@ -81,44 +80,65 @@ be used."""
   return l
 
 
-def displaySubImage( emgs, i, n=64, m=64 ):
+def displaySubImages( emgs, evls, row, col, n=64, m=64 ):
+
+  c1 = numpy.zeros( ( row * n , col * m ) );
+  c2 = numpy.zeros( ( row * n , col * m ) );
+  c3 = numpy.zeros( ( row * n , col * m ) );
+
+  index = 0
+  for r in range( row ):
+    for c in range( col ):
+      c1[r*n:(r+1)*n,c*m:(c+1)*m] = emgs[index][:,0:m] * numpy.sqrt( evls[index] )
+      c2[r*n:(r+1)*n,c*m:(c+1)*m] = emgs[index][:,m:m*2] * numpy.sqrt( evls[index] )
+      c3[r*n:(r+1)*n,c*m:(c+1)*m] = emgs[index][:,m*2:m*3] * numpy.sqrt( evls[index] )
+
+      index += 1
+
+  
+
+  r,g,b = YUV2RGB( c1, c2, c3 )
+
+  print r, g, b
+
+  imr = sophia.a2i( r )
+  img = sophia.a2i( g )
+  imb = sophia.a2i( b )
+
+  Image.merge( 'RGB', ( imr, img,  imb ) ).show()
+
+def displaySubImage( emgs, evls, i, n=64, m=64 ):
   """
 A debugging function. Given a list of sub-images produced by splitImage and
 an index into the list, displays the sub-image"""
 
-  h = emgs[i][:,0:m]
-  s = emgs[i][:,m:m*2]
-  v = emgs[i][:,m*2:m*3]
+  y = emgs[i][:,0:m].real * evls[i]
+  u = emgs[i][:,m:m*2].real * evls[i]
+  v = emgs[i][:,m*2:m*3].real * evls[i]
 
-  imh = sophia.a2i( h )
-  ims = sophia.a2i( s )
-  imv = sophia.a2i( v )
+  r,g,b = YUV2RGB( y, u, v )
 
-  Image.merge( 'YCbCr', ( imh, ims, imv ) ).show()
+  imr = sophia.a2i( r )
+  img = sophia.a2i( g )
+  imb = sophia.a2i( b )
 
+  Image.merge( 'RGB', ( imr, img, imb ) ).show()
 
-def displaySubImage( emgs, i, n=64, m=64 ):
-  """
-A debugging function. Given a list of sub-images produced by splitImage and
-an index into the list, displays the sub-image"""
+def YUV2RGB(y,u,v):
+    r = 1.0*y + 0.0*u + 1.13983*v
+    g = 1.0*y - 0.39465*u + -0.58060*v
+    b = 1.0*y + 2.03211*u + 0.0*v
+    return r,g,b
 
-  # normalize all three components together
-  norm_emgs = normalize( emgs[i] )
+def normalize2( mat ):
+  ret = numpy.array( mat.real )
+  ret *= 1.0 / numpy.max( ret )
+  return ret
 
-  h = norm_emgs[:,0:m]
-  s = norm_emgs[:,m:m*2]
-  v = norm_emgs[:,m*2:m*3]
-
-  imh = sophia.a2i( h )
-  ims = sophia.a2i( s )
-  imv = sophia.a2i( v )
-
-  Image.merge( 'YCbCr', ( imh, ims, imv ) ).show()
-
-def normalize( mat ):
-  ret = numpy.array( mat )
+def normalize( mat, rng=255.0 ):
+  ret = numpy.array( mat.real )
   ret -= numpy.min( ret )
-  ret *= 255.0 / numpy.max( ret )
+  ret *= rng / numpy.max( ret )
   return ret
 
 def subImage( c1, c2, c3, xi, yi, n=64, m=64 ):

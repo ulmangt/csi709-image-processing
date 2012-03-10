@@ -15,20 +15,17 @@ def countBoatsFile( fileName ):
 def countBoats( image ):
   """Counts the number of boats in an input image."""
   cube = sophia.Image2Cube( image )
-  l,u,v = color.RGB2LUV( cube[0], cube[1], cube[2] )
+  r,g,b = cube
+  l,u,v = color.RGB2LUV( r,g,b )
 
   mask_black_border = ( l > 7000 )
   mask_upper_right = createMaskCorner( l.shape )
 
   mask_shiny = ( l > 15200 )
-
-
   mask_green_cannopy = ( u < -300 )
-  mask_red_cannopy = ( u > 2700 )
-  mask_black_cannopy = ( l > 10000 ) * ( l < 11000 )
 
-  mask_ship = mask_shiny | mask_green_cannopy # | mask_red_cannopy # | mask_black_cannopy
-  mask_ignore = mask_black_border * mask_upper_right
+  mask_ship = mask_shiny | mask_green_cannopy
+  mask_ignore = mask_black_border # * mask_upper_right
 
   mask = mask_ship * mask_ignore
 
@@ -37,7 +34,7 @@ def countBoats( image ):
 
   sophia.a2i( mask ).show()
 
-  mask = removeSmallBlobs( mask, 20 )
+  mask = removeSmallBlobs( mask, 17 )
 
   sophia.a2i( mask ).show()
 
@@ -53,20 +50,21 @@ def countBoats( image ):
 
   labels, count = label( mask, structure=ones( (3,3) ) )
   
-  label_mask_r = zeros( l.shape )
-  label_mask_g = zeros( l.shape )
-  label_mask_b = zeros( l.shape )
+  mask_r = zeros( l.shape )
+  mask_g = zeros( l.shape )
+  mask_b = zeros( l.shape )
 
   boatCount = 0
   for i in range( 1, count+1 ):
     single_mask = labels == i
     if ( scipy.sum( single_mask ) > 20 ):
       boatCount = boatCount + 1
-      label_mask_r = label_mask_r + ( single_mask * randint( 0, 255 ) )
-      label_mask_g = label_mask_g + ( single_mask * randint( 0, 255 ) )
-      label_mask_b = label_mask_b + ( single_mask * randint( 0, 255 ) )
+      mask_r = mask_r + ( single_mask * randint( 0, 255 ) )
+      mask_g = mask_g + ( single_mask * randint( 0, 255 ) )
+      mask_b = mask_b + ( single_mask * randint( 0, 255 ) )
 
-  sophia.Cube2Image( label_mask_r, label_mask_g, label_mask_b ).show()
+  sophia.Cube2Image( r * (mask_r != 0), g * (mask_g != 0), b * (mask_b != 0) ).show()
+  sophia.Cube2Image( mask_r, mask_g, mask_b ).show()
 
   print boatCount, count
 

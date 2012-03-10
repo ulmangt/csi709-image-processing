@@ -20,32 +20,38 @@ def countBoats( image ):
 
   mask_black_border = ( l > 7000 )
   mask_upper_right = createMaskCorner( l.shape )
+  mask_edges = numpy.abs( edgeDetectMatrix( l ) ) < 2000 
 
   mask_shiny = ( l > 15200 )
-  mask_green_cannopy = ( u < -300 )
+  mask_green_cannopy = ( u < -300 ) * ( u > -4000 )
 
-  mask_ship = mask_shiny | mask_green_cannopy
+  mask_ship = mask_shiny
   mask_ignore = mask_black_border # * mask_upper_right
 
   mask = mask_ship * mask_ignore
 
-
-
-
+  #
   sophia.a2i( mask ).show()
 
-  mask = removeSmallBlobs( mask, 17 )
+  mask = removeSmallBlobs( mask, 14 )
 
+  #
   sophia.a2i( mask ).show()
 
-  kernel = numpy.array([1., 1., 1., 1., 8., 1., 1., 1., 1.])
+  kernel = numpy.array([1., 1., 1., 1., 3., 1., 1., 1., 1.])
   kernel = kernel / numpy.sum( kernel )
   kernel = kernel.reshape( (3,3) )
-  mask = convolve2d( mask, kernel, mode="same" ) > 0.1
+  mask = convolve2d( mask, kernel, mode="same" ) > 0.06
 
+  mask = mask * mask_edges
+
+  #
   sophia.a2i( mask ).show()
 
+  mask = mask | ( mask_green_cannopy * mask_ignore )
 
+  #
+  sophia.a2i( mask ).show()
 
 
   labels, count = label( mask, structure=ones( (3,3) ) )
@@ -67,6 +73,30 @@ def countBoats( image ):
   sophia.Cube2Image( mask_r, mask_g, mask_b ).show()
 
   print boatCount, count
+
+def shiftMatrix( matrix, shift ):
+  """A simple wraper function around numpy.roll() which allows shifting
+     in two dimensions simultaneously."""
+  matrix_p = numpy.roll( matrix, shift[0], axis=0 )
+  matrix_p = numpy.roll( matrix_p, shift[1], axis=1 )
+  return matrix_p
+
+def edgeDetectMatrix( matrix ):
+  """Apply a simple shift and subtract gradient detection algorithm on a matrix."""
+  
+  # interpret the matrix as type float
+  matrix = matrix.astype( float )
+
+  # get the shape of the matrix
+  w, h = matrix.shape
+
+  # construct a new matrix which will contain the edge detections
+  matrix_p = numpy.zeros( (w, h) )
+
+  # perform the shift and subtract and return the results
+  matrix_diff =  matrix[:-1,:-1] - matrix[1:,1:]
+  matrix_p[1:,1:] = matrix_diff
+  return matrix_p
 
 def createMaskCorner( shape ):
   slope = ( 125. - 0 ) / ( 350. - 250. )

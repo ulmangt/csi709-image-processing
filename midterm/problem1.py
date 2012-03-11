@@ -1,13 +1,13 @@
-import os, sys, scipy, numpy
+import os, sys, scipy, numpy, eigenimage
 from eface import *
 from kmeans import Init2, Split
 from random import shuffle
 
 def main( ):
   """"""
-  return problem1( '/home/ulman/CSI709/csi709-image-processing/class6/parsed' )
+  return problem1( '/home/ulman/CSI709/csi709-image-processing/class6/parsed', '/home/ulman/CSI709/csi709-image-processing/midterm/warps' )
 
-def problem1( directory ):
+def problem1( data_directory, warp_directory, load_warps=True ):
   # load names of fiduciary point files
   fidnames = FidNames( directory )
   
@@ -32,24 +32,56 @@ def problem1( directory ):
   clust1, mmb = kMeansCluster( 20, array( fids ) )
 
   # get names for the individuals
-  names = GetNames( fidnames )
+  name_map, name_list = getPersonMapping( fidnames )
+  
+  if ( load_warps ):
+    # load precalculated warped images
+    wmgs = LoadWarps( warp_directory )
+  else:
+    # warp the images to conform to the average fiduciary points
+    wmgs = WarpAll( fidavg, mgs, fids )
+
+    print 'done warps'    
+
+    SaveWarps( wmgs, warp_directory )
+
+    # calculate eigen images from the warped images
+    emgs, evals, mgavg = GoEigen( wmgs )
+
+    print 'done eigen'
 
   return clust1, mmb
 
+def substitudeIndicesForNames( mmb, name_list ):
+  """given the output of kMeansCluster(), returns an array with person names
+     substituted for the data indices
+     [0,2,10] might become ['mrjo0','mrjo0','mrcz0'] for example"""
+  mmb_name = []
+  for mmbi in mmb:
+    mmbi_name = []
+    for i in mmbi:
+      mmbi_name.append( name_list[i] )
+    mmb_name.append( mmbi_name )
+
+  return mmb_name
+
 def getPersonMapping( fidnames ):
   """modified from eface.py, takes a list of fidname files and create a mapping
-     from data index to person name"""
+     from data index to person name, also returns a list where each index contains
+     the name of the person associated with the fiduciary points at that index"""
   # get individual names
-  people = {}
+  people_map = {}
+  people_list = [None]*len(fidnames)
   for g in GetNames( fidnames ):
-    people[g] = []
+    people_map[g] = []
   for i in range( len( fidnames )):
     f = fidnames[i]
     loc2 = f.rfind( '/')
     loc1 = f.rfind( '/', 0, loc2-1 )
     me = f[loc1+1 : loc2]
-    people[me].append( i )
-  return people
+    people_map[me].append( i )
+    people_list[i] = me
+  return ( people_map, people_list )
 
 def kMeansCluster( K, data ):
   """KMeans clustering driver modified from kmeans.py"""
@@ -164,6 +196,7 @@ def ClusterAverage( mmb, data ):
     clusts[i] = vecs.mean(0)
   
   return clusts
+
 
 def diffFids( fids, fidavg ):
   """calculate the offset of each fiduciary point in fids from its corresponding

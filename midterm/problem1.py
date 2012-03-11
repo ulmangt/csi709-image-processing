@@ -1,6 +1,7 @@
 import os, sys, scipy, numpy
 from eface import *
-from kmeans import Init2
+from kmeans import Init2, Split
+from random import shuffle
 
 def main( ):
   """"""
@@ -30,8 +31,25 @@ def problem1( directory ):
   # there are 20 unique people in the dataset, so use 20 clusters
   clust1, mmb = kMeansCluster( 20, array( fids ) )
 
+  # get names for the individuals
+  names = GetNames( fidnames )
+
   return clust1, mmb
 
+def getPersonMapping( fidnames ):
+  """modified from eface.py, takes a list of fidname files and create a mapping
+     from data index to person name"""
+  # get individual names
+  people = {}
+  for g in GetNames( fidnames ):
+    people[g] = []
+  for i in range( len( fidnames )):
+    f = fidnames[i]
+    loc2 = f.rfind( '/')
+    loc1 = f.rfind( '/', 0, loc2-1 )
+    me = f[loc1+1 : loc2]
+    people[me].append( i )
+  return people
 
 def kMeansCluster( K, data ):
   """KMeans clustering driver modified from kmeans.py"""
@@ -39,23 +57,60 @@ def kMeansCluster( K, data ):
   # randomly assign the data vectors to clusters
   clust1 = Init2( K, data )
   
-  ok = 1
-  while ok:
-    # assign data vectors to clusters
-    mmb = AssignMembership( clust1, data )
+  for i in range( 3 ):
 
-    # calculate the average of each cluster
-    clust2 = ClusterAverage( mmb, data )
+    ok = 1
+    while ok:
+      # assign data vectors to clusters
+      mmb = AssignMembership( clust1, data )
+
+      # calculate the average of each cluster
+      clust2 = ClusterAverage( mmb, data )
     
-    diff = ( abs( clust1-clust2) ).sum()
-    if diff==0:
-      ok = 0
+      diff = ( abs( clust1-clust2) ).sum()
+      if diff==0:
+        ok = 0
     
-    print 'Difference', diff
-    clust1 = clust2 + 0
+      print 'Difference', diff
+      clust1 = clust2 + 0
   
+    # make some random cluster adjustments to make sure
+    # we don't settle into a local maxima
+    mmb = ReorderClusters( mmb )
+    clust1 = ClusterAverage( mmb, data ) + 0
+
   return clust1, mmb
 
+
+def ReorderClusters( mmb ):
+  # make 10 random group swaps
+  i = 10
+  while ( i > 0 ):
+    i1 = 0
+    i2 = 0
+
+    # the groups must not be the same
+    while ( i1 == i2 ):
+      i1 = random.randint(0, len(mmb)-1)
+      i2 = random.randint(0, len(mmb)-1)
+
+    # one of the groups must be large
+    if ( len( mmb[i1] ) < 5 and len( mmb[i2] ) < 5 ):
+      continue
+
+    # split the groups
+    mmbi11, mmbi12 = Split( mmb[i1] )
+    mmbi21, mmbi22 = Split( mmb[i2] )
+
+    # swap values as long as neither new cluster would be left empty
+    if ( len( mmbi11 ) + len( mmbi21 ) != 0 and len( mmbi12 ) + len( mmbi22 ) != 0 ):
+      mmbi11.extend( mmbi21 )
+      mmbi12.extend( mmbi22 )
+      mmb[i1] = list( mmbi11 )
+      mmb[i2] = list( mmbi12 )
+      i = i - 1
+
+  return mmb
 
 # Decide which cluster each vector belongs to
 def AssignMembership( clusts, data ):

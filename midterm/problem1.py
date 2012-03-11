@@ -5,11 +5,14 @@ from random import shuffle
 
 def main( ):
   """"""
-  return problem1( '/home/ulman/CSI709/csi709-image-processing/class6/parsed', '/home/ulman/CSI709/csi709-image-processing/midterm/warps' )
+  data_directory = '/home/ulman/CSI709/csi709-image-processing/class6/parsed'
+  warp_directory = '/home/ulman/CSI709/csi709-image-processing/midterm/warps'
+  clust1, mmb = problem1_kmeans( data_directory )
+  return problem1_pca( data_directory, warp_directory, False )
 
-def problem1( data_directory, warp_directory, load_warps=True ):
+def problem1_kmeans( data_directory ):
   # load names of fiduciary point files
-  fidnames = FidNames( directory )
+  fidnames = FidNames( data_directory )
   
   # load fiduciary points
   fids = FidFiles( fidnames )
@@ -34,6 +37,21 @@ def problem1( data_directory, warp_directory, load_warps=True ):
   # get names for the individuals
   name_map, name_list = getPersonMapping( fidnames )
   
+  return clust1, mmb
+
+def problem1_pca( data_directory, warp_directory, load_warps=False ):
+  # load names of fiduciary point files
+  fidnames = FidNames( data_directory )
+  
+  # load fiduciary points
+  fids = FidFiles( fidnames )
+
+  # load images
+  mgs = Images( fidnames )
+
+  # average each fiduciary point across all images
+  fidavg = AverageFid( fids )
+
   if ( load_warps ):
     # load precalculated warped images
     wmgs = LoadWarps( warp_directory )
@@ -41,16 +59,29 @@ def problem1( data_directory, warp_directory, load_warps=True ):
     # warp the images to conform to the average fiduciary points
     wmgs = WarpAll( fidavg, mgs, fids )
 
-    print 'done warps'    
-
+    # save the warped images
     SaveWarps( wmgs, warp_directory )
 
-    # calculate eigen images from the warped images
-    emgs, evals, mgavg = GoEigen( wmgs )
+  # calculate eigen images from the warped images
+  emgs, evals, mgavg = GoEigen( wmgs )
 
-    print 'done eigen'
+  # project the warped images into the new space defined by the eigen faces
+  pts = ProjectAll( emgs[:3], wmgs, mgavg )
 
-  return clust1, mmb
+  gnames = GetNames(fidnames )
+
+  act = PlotPeople( pts, fidnames, gnames )
+
+  return wmgs, emgs, evals, mgavg, pts, act 
+
+def SaveWarps( wmgs, outdir ):
+  """a corrected version of SaveWarps from eface.py which pads
+     the saved image file names with 0s"""
+  for i in range( len( wmgs )):
+    name = outdir + '/' + str(i).zfill(3) + '.png'
+    mg = sophia.a2i( wmgs[i] )
+    mg.save( name )
+
 
 def substitudeIndicesForNames( mmb, name_list ):
   """given the output of kMeansCluster(), returns an array with person names
@@ -89,31 +120,32 @@ def kMeansCluster( K, data ):
   # randomly assign the data vectors to clusters
   clust1 = Init2( K, data )
   
-  for i in range( 3 ):
+  #for i in range( 3 ):
 
-    ok = 1
-    while ok:
-      # assign data vectors to clusters
-      mmb = AssignMembership( clust1, data )
+  ok = 1
+  while ok:
+    # assign data vectors to clusters
+    mmb = AssignMembership( clust1, data )
 
-      # calculate the average of each cluster
-      clust2 = ClusterAverage( mmb, data )
+    # calculate the average of each cluster
+    clust2 = ClusterAverage( mmb, data )
     
-      diff = ( abs( clust1-clust2) ).sum()
-      if diff==0:
-        ok = 0
-    
-      print 'Difference', diff
-      clust1 = clust2 + 0
+    diff = ( abs( clust1-clust2) ).sum()
+    if diff==0:
+      ok = 0
+
+    print 'Difference', diff
+    clust1 = clust2 + 0
   
     # make some random cluster adjustments to make sure
     # we don't settle into a local maxima
-    mmb = ReorderClusters( mmb )
-    clust1 = ClusterAverage( mmb, data ) + 0
+    #mmb = ReorderClusters( mmb )
+    #clust1 = ClusterAverage( mmb, data ) + 0
 
   return clust1, mmb
 
 
+###### this can be removed ###########
 def ReorderClusters( mmb ):
   # make 10 random group swaps
   i = 10

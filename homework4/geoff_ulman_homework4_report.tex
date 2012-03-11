@@ -48,16 +48,27 @@ Figure \ref{result_mine} contains the output of my algorithm. For reference, Fig
 
 
 \section{Formal Image Algebra}
-This is time for all good men to come to the aid of their party!
+Equation \ref{eq_edge} defines an edge finding function which highlights edges in a source image. The function \emph{edge} is then used in the bump mapping function described in Equation \ref{eq_bump} where three offset and scaled \emph{edge} functions are added to the original image.
 
-\begin{equation}\label{eq1}
+\begin{figure}
+\begin{equation}\label{eq_edge}
 \begin{aligned}
-\left\{ \left( \vec{x}, \textbf{c}(\vec{x}) \right) : \textbf{c}(\vec{x}) = \right. & \left. \textbf{f}( \textbf{a}(\vec{x}) ), \vec{x} \in  \textbf{X} \right\} \\
-\left\{ \left( \vec{x}, \textbf{edge}(\vec{x}) \right) : \textbf{edge}(\vec{x}) = \right. & \left. | \textbf{a}(\vec{x}+(1,1)) - \textbf{a}(\vec{x}) |, \vec{x} \in  \textbf{X} \right\} \\
-\left\{ \left( \vec{x}, \textbf{bump}(\vec{x}) \right) : \textbf{bump}(\vec{x}) = \right. & \left. 4 \times \textbf{edge}(\vec{x}) + \right. \\
+\left\{ \left( \vec{x}, \textbf{edge}(\vec{x}) \right) : \textbf{edge}(\vec{x}) = \right. & \left. | \textbf{a}(\vec{x}+(1,1)) - \textbf{a}(\vec{x}) |, \vec{x} \in  \textbf{X} \right\}
+\end{aligned}
+\end{equation}
+\caption{Edge Detection Helper Function}
+\end{figure}
+
+\begin{figure}
+\begin{equation}\label{eq_bump}
+\begin{aligned}
+\left\{ \left( \vec{x}, \textbf{bump}(\vec{x}) \right) : \right. & \\
+\left. \textbf{bump}(\vec{x}) = \right. & \left. 4 \times \textbf{edge}(\vec{x}) + \right. \\
 & \left. 3 \times \textbf{edge}(\vec{x}+(1,1)) + \right. \\
 & \left. -1 \times \textbf{edge}(\vec{x}+(-1,-1)) + \textbf{a}(\vec{x}) , \vec{x} \in  \textbf{X} \right\}
 \end{aligned}
 \end{equation}
+\caption{Bump Map Formal Description}
+\end{figure}
 
 \end{document}

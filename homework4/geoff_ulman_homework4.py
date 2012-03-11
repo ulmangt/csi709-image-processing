@@ -17,10 +17,13 @@ def bumpFilterImage( image ):
   
   # convert the input image to greyscale
   image_bw = image.convert( 'L' )
+
   # convert the greyscale image to a matrix
   matrix = sophia.i2a( image_bw )
+
   # find edges in the greyscale image using a simple shift and subtract gradient calculation
   edges = edgeDetectMatrix( matrix )
+
   # convert the original RGB image to a cube
   cube = sophia.Image2Cube( image )
 
@@ -47,7 +50,7 @@ def shiftAdjust( inputCube, mask, multiplier, shift ):
 
   # apply the shifted mask to each channel of the inputCube
   c_0 = inputCube[0] - numpy.abs( mask_s ) * multiplier
-  c_1 = inputCube[1]  - numpy.abs( mask_s ) * multiplier
+  c_1 = inputCube[1] - numpy.abs( mask_s ) * multiplier
   c_2 = inputCube[2] - numpy.abs( mask_s ) * multiplier
 
   # return a new cube

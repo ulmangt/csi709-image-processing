@@ -1,6 +1,6 @@
-import os, sys, scipy, numpy, warp
+import os, sys, scipy, numpy
 from eface import *
-from kmeans import *
+from kmeans import Init2
 
 def main( ):
   """"""
@@ -28,12 +28,11 @@ def problem1( directory ):
   diffFids( fids, fidavg )
 
   # there are 20 unique people in the dataset, so use 20 clusters
-  kMeansCluster( 20, array( fids ) )
+  clust1, mmb = kMeansCluster( 20, array( fids ) )
 
-  return fids
+  return clust1, mmb
 
 
-# typical driver
 def kMeansCluster( K, data ):
   """KMeans clustering driver modified from kmeans.py"""
 
@@ -48,21 +47,49 @@ def kMeansCluster( K, data ):
     # calculate the average of each cluster
     clust2 = ClusterAverage( mmb, data )
     
-    #diff = ( abs( ravel(clust1)-ravel(clust2))).sum()
     diff = ( abs( clust1-clust2) ).sum()
     if diff==0:
       ok = 0
+    
     print 'Difference', diff
     clust1 = clust2 + 0
+  
   return clust1, mmb
 
-# Measure the variance of a cluster
-def ClusterVar( vecs ):
-    a = vecs.std( 0 )
-    a = sum( a**2 )/len(vecs[0])
-    return a
 
-# compute the average of the clusters
+# Decide which cluster each vector belongs to
+def AssignMembership( clusts, data ):
+    NC = len( clusts )
+    mmb = []
+    for i in range( NC ):
+        mmb.append( [] )
+
+    for i in range( len( data )):
+        sc = zeros( NC )
+        for j in range( NC ):
+            sc[j] = DiffClust(clusts[j],data[i])
+        mn = sc.argmin()
+        mmb[mn].append( i )
+    return mmb
+
+
+
+# compare all of the vectors to a target: abs-subtraction
+def DiffClust( clust1, clust2 ):
+  """a metric for comparing a given target set of fiduciary points against
+     a list of other sets of fiduciary points. Based on clustering.CompareVecs()
+     in the class python function library"""
+  # calculate the difference between the points in each cluster
+  diffs = clust1 - clust2
+
+  # calculate the length of each x,y difference vector
+  distances = numpy.sqrt( ( diffs * diffs ).sum(1) )
+
+  # sum the lengths of the difference vectors for each fiduciary point
+  return distances.sum( 0 )
+
+
+
 def ClusterAverage( mmb, data ):
   """ClusterAverage modified from kmeans.py to accept cluster
      averages consisting of 45 x,y fiduciary point pairs"""
@@ -82,8 +109,6 @@ def ClusterAverage( mmb, data ):
     clusts[i] = vecs.mean(0)
   
   return clusts
-
-
 
 def diffFids( fids, fidavg ):
   """calculate the offset of each fiduciary point in fids from its corresponding

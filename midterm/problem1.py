@@ -1,4 +1,4 @@
-import os, sys, scipy, numpy, eigenimage
+import os, sys, scipy, numpy, eigenimage, math
 from eface import *
 from kmeans import Init2, Split
 from random import shuffle
@@ -36,7 +36,13 @@ def problem1_kmeans( data_directory ):
 
   # get names for the individuals
   name_map, name_list = getPersonMapping( fidnames )
-  
+
+  mmb_names = substitudeIndicesForNames( mmb, name_list )
+
+  for names in mmb_names:
+    gini = calculateGiniIndex( names )
+    print 'Cluster: ', names, 'Gini Index: ', gini
+ 
   return clust1, mmb
 
 def problem1_pca( data_directory, warp_directory, load_warps=False ):
@@ -73,6 +79,26 @@ def problem1_pca( data_directory, warp_directory, load_warps=False ):
   act = PlotPeople( pts, fidnames, gnames )
 
   return wmgs, emgs, evals, mgavg, pts, act 
+
+def calculateGiniIndex( names ):
+  """calculate the gini index for the given cluster, a measure
+     of the purity of the cluster.
+     a gini index of 0 indicates the cluster consists of only
+     data from a single person."""
+
+  d = dict((i,names.count(i)) for i in names)
+
+  if ( len( d ) < 2 ):
+    return 0.0
+
+  size = len( names )
+  accum = 0
+
+  for k,v in d.iteritems():
+    p = float( v ) / float( size )
+    accum += p * ( 1 - p )
+
+  return accum
 
 def SaveWarps( wmgs, outdir ):
   """a corrected version of SaveWarps from eface.py which pads

@@ -1,4 +1,4 @@
-import os, sys, scipy, numpy, eigenimage, math, operator
+import os, sys, scipy, numpy, math, operator
 from eface import *
 from numpy import cov
 from kmeans import Init2, Split
@@ -51,6 +51,7 @@ def problem1_kmeans( data_directory ):
   # get the names of the people in the data set
   gnames = GetNames( fidnames )
 
+  # use the routine from the class resource eface.py to generate a gnuplot command
   plot_command = PlotPeople( cffs, fidnames, gnames )
 
   return fids, clust1, mmb, plot_command
@@ -87,14 +88,17 @@ def calculateGiniIndex( names ):
      a gini index of 0 indicates the cluster consists of only
      data from a single person."""
 
+  # create a dictionary containing the number of times each name appears in the list
   d = dict((i,names.count(i)) for i in names)
 
+  # if there is only one or zero items, the gini index is 0
   if ( len( d ) < 2 ):
     return 0.0
 
   size = len( names )
   accum = 0
 
+  # perform gini index calculation
   for k,v in d.iteritems():
     p = float( v ) / float( size )
     accum += p * ( 1 - p )
@@ -115,11 +119,11 @@ def substitudeIndicesForNames( mmb, name_list ):
 
   return mmb_name
 
+# modified from class materials, eface.py
 def getPersonMapping( fidnames ):
-  """modified from eface.py, takes a list of fidname files and create a mapping
+  """takes a list of fidname files and create a mapping
      from data index to person name, also returns a list where each index contains
      the name of the person associated with the fiduciary points at that index"""
-  # get individual names
   people_map = {}
   people_list = [None]*len(fidnames)
   for g in GetNames( fidnames ):
@@ -133,8 +137,9 @@ def getPersonMapping( fidnames ):
     people_list[i] = me
   return ( people_map, people_list )
 
+# modified from class materials, kmeans.py
 def kMeansCluster( K, data ):
-  """KMeans clustering driver modified from kmeans.py"""
+  """KMeans clustering driver"""
 
   # randomly assign the data vectors to clusters
   clust1 = Init2( K, data )
@@ -156,24 +161,26 @@ def kMeansCluster( K, data ):
 
   return clust1, mmb
 
-# Decide which cluster each vector belongs to
+# modified from class materials, kmeans.py
 def AssignMembership( clusts, data ):
-    NC = len( clusts )
-    mmb = []
-    for i in range( NC ):
-        mmb.append( [] )
+  """Decide which cluster each vector belongs to"""
+  NC = len( clusts )
+  mmb = []
+  for i in range( NC ):
+    mmb.append( [] )
 
-    for i in range( len( data )):
-        sc = zeros( NC )
-        for j in range( NC ):
-            sc[j] = DiffClust(clusts[j],data[i])
-        mn = sc.argmin()
-        mmb[mn].append( i )
-    return mmb
+  for i in range( len( data )):
+    sc = zeros( NC )
+    for j in range( NC ):
+      sc[j] = DiffClust(clusts[j],data[i])
+  
+    mn = sc.argmin()
+    mmb[mn].append( i )
+  return mmb
 
 
 
-# compare all of the vectors to a target: abs-subtraction
+# modified from class materials, kmeans.py
 def DiffClust( clust1, clust2 ):
   """a metric for comparing a given target set of fiduciary points against
      a list of other sets of fiduciary points. Based on clustering.CompareVecs()
@@ -188,7 +195,7 @@ def DiffClust( clust1, clust2 ):
   return distances.sum( 0 )
 
 
-
+# modified from class materials, kmeans.py
 def ClusterAverage( mmb, data ):
   """ClusterAverage modified from kmeans.py to accept cluster
      averages consisting of 45 x,y fiduciary point pairs"""
@@ -228,3 +235,7 @@ def calcCenter( fid ):
      this value as the center of the fiduciary point grid"""
   #fiduciary points at index 14 and 15 are the left and right nostrils
   return fid[14:16].mean(0)
+
+if __name__ == "__main__":
+  main() 
+

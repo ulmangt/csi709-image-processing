@@ -1,11 +1,14 @@
-import os, sys, scipy, numpy, eigenimage, math, operator
+import os, sys, scipy, numpy, eigenimage, math
 from eface import *
-from numpy import cov
 from kmeans import Init2, Split
+from random import shuffle
 
 def main( ):
   """"""
-  return problem1_kmeans( '/home/ulman/CSI709/csi709-image-processing/class6/parsed' )
+  data_directory = '/home/ulman/CSI709/csi709-image-processing/class6/parsed'
+  warp_directory = '/home/ulman/CSI709/csi709-image-processing/midterm/warps'
+  clust1, mmb = problem1_kmeans( data_directory )
+  return problem1_pca( data_directory, warp_directory, False )
 
 def problem1_kmeans( data_directory ):
   # load names of fiduciary point files
@@ -13,6 +16,9 @@ def problem1_kmeans( data_directory ):
   
   # load fiduciary points
   fids = FidFiles( fidnames )
+
+  # load images
+  mgs = Images( fidnames )
 
   # average each fiduciary point across all images
   fidavg = AverageFid( fids )
@@ -28,58 +34,51 @@ def problem1_kmeans( data_directory ):
   # there are 20 unique people in the dataset, so use 20 clusters
   clust1, mmb = kMeansCluster( 20, array( fids ) )
 
-  # get names for the individuals and turn the kmeans cluster output
-  # from indices into person identifiers
+  # get names for the individuals
   name_map, name_list = getPersonMapping( fidnames )
+
   mmb_names = substitudeIndicesForNames( mmb, name_list )
 
-  # calculate the gini index for each cluster (a sense of the purity
-  # of each cluster)
   for names in mmb_names:
     gini = calculateGiniIndex( names )
     print 'Cluster: ', names, 'Gini Index: ', gini
  
-  # calculate some sizes then reshape the centered dx/dy fiduciary point data
-  # into a 2D matrix with a column vector of data (size 90) for each person
-  num_people = len( fids )
-  data_per_person = reduce(operator.mul, fids[0].shape )
-  fids_pca_in = numpy.array( fids ).reshape( ( num_people, data_per_person ) )
+  return clust1, mmb
+
+def problem1_pca( data_directory, warp_directory, load_warps=False ):
+  # load names of fiduciary point files
+  fidnames = FidNames( data_directory )
   
-  # transform the fiduciary points into a 3 dimensional PCA space which we can plot
-  cffs, vecs = PCA( fids_pca_in, 3 )
+  # load fiduciary points
+  fids = FidFiles( fidnames )
 
-  # get the names of the people in the data set
-  gnames = GetNames( fidnames )
+  # load images
+  mgs = Images( fidnames )
 
-  plot_command = PlotPeople( cffs, fidnames, gnames )
+  # average each fiduciary point across all images
+  fidavg = AverageFid( fids )
 
-  return fids, clust1, mmb, plot_command
+  if ( load_warps ):
+    # load precalculated warped images
+    wmgs = LoadWarps( warp_directory )
+  else:
+    # warp the images to conform to the average fiduciary points
+    wmgs = WarpAll( fidavg, mgs, fids )
 
+    # save the warped images
+    SaveWarps( wmgs, warp_directory )
 
-# pca.py
-# modified from class materials, chapter 8 Principal Component Analysis
-def PCA( indata, D=2 ):
-  # center the data (remove bias)
-  a = indata - indata.mean(0)
-  # calculate covariance
-  cv = cov( a.transpose() )
-  # calculate eigenvectors and eigenvalues
-  evl, evc = numpy.linalg.eig( cv )
-  # map the input data intp the new eigenvalue space 
-  V,H = indata.shape
-  cffs = zeros( (V,D) )
-  ag = abs(evl).argsort( )
-  ag = ag[::-1]
-  me = ag[:D]
-  for i in range( V ):
-    k = 0
-    for j in me:
-      cffs[i,k] = (indata[i] * evc[:,j]).sum()
-      k += 1
-  vecs = evc[:,me].transpose()
-  print me, evl[me]
-  return cffs, vecs
+  # calculate eigen images from the warped images
+  emgs, evals, mgavg = GoEigen( wmgs )
 
+  # project the warped images into the new space defined by the eigen faces
+  pts = ProjectAll( emgs[:3], wmgs, mgavg )
+
+  gnames = GetNames(fidnames )
+
+  act = PlotPeople( pts, fidnames, gnames )
+
+  return wmgs, emgs, evals, mgavg, pts, act 
 
 def calculateGiniIndex( names ):
   """calculate the gini index for the given cluster, a measure
@@ -100,6 +99,14 @@ def calculateGiniIndex( names ):
     accum += p * ( 1 - p )
 
   return accum
+
+def SaveWarps( wmgs, outdir ):
+  """a corrected version of SaveWarps from eface.py which pads
+     the saved image file names with 0s"""
+  for i in range( len( wmgs )):
+    name = outdir + '/' + str(i).zfill(3) + '.png'
+    mg = sophia.a2i( wmgs[i] )
+    mg.save( name )
 
 
 def substitudeIndicesForNames( mmb, name_list ):
@@ -139,6 +146,8 @@ def kMeansCluster( K, data ):
   # randomly assign the data vectors to clusters
   clust1 = Init2( K, data )
   
+  #for i in range( 3 ):
+
   ok = 1
   while ok:
     # assign data vectors to clusters
@@ -153,8 +162,45 @@ def kMeansCluster( K, data ):
 
     print 'Difference', diff
     clust1 = clust2 + 0
+  
+    # make some random cluster adjustments to make sure
+    # we don't settle into a local maxima
+    #mmb = ReorderClusters( mmb )
+    #clust1 = ClusterAverage( mmb, data ) + 0
 
   return clust1, mmb
+
+
+###### this can be removed ###########
+def ReorderClusters( mmb ):
+  # make 10 random group swaps
+  i = 10
+  while ( i > 0 ):
+    i1 = 0
+    i2 = 0
+
+    # the groups must not be the same
+    while ( i1 == i2 ):
+      i1 = random.randint(0, len(mmb)-1)
+      i2 = random.randint(0, len(mmb)-1)
+
+    # one of the groups must be large
+    if ( len( mmb[i1] ) < 5 and len( mmb[i2] ) < 5 ):
+      continue
+
+    # split the groups
+    mmbi11, mmbi12 = Split( mmb[i1] )
+    mmbi21, mmbi22 = Split( mmb[i2] )
+
+    # swap values as long as neither new cluster would be left empty
+    if ( len( mmbi11 ) + len( mmbi21 ) != 0 and len( mmbi12 ) + len( mmbi22 ) != 0 ):
+      mmbi11.extend( mmbi21 )
+      mmbi12.extend( mmbi22 )
+      mmb[i1] = list( mmbi11 )
+      mmb[i2] = list( mmbi12 )
+      i = i - 1
+
+  return mmb
 
 # Decide which cluster each vector belongs to
 def AssignMembership( clusts, data ):
@@ -228,3 +274,6 @@ def calcCenter( fid ):
      this value as the center of the fiduciary point grid"""
   #fiduciary points at index 14 and 15 are the left and right nostrils
   return fid[14:16].mean(0)
+
+if __name__ == "__main__":
+  main() 

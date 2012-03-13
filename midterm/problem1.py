@@ -5,9 +5,9 @@ from kmeans import Init2, Split
 
 def main( ):
   """"""
-  return problem1_kmeans( '/home/ulman/CSI709/csi709-image-processing/class6/parsed' )
+  return recognition_system( '/home/ulman/CSI709/csi709-image-processing/class6/parsed' )
 
-def problem1_kmeans( data_directory ):
+def recognition_system( data_directory ):
   # load names of fiduciary point files
   fidnames = FidNames( data_directory )
   
@@ -54,6 +54,7 @@ def problem1_kmeans( data_directory ):
   # use the routine from the class resource eface.py to generate a gnuplot command
   plot_command = PlotPeople( cffs, fidnames, gnames )
 
+  # return a number of useful results from the above processing
   return fids, clust1, mmb, plot_command
 
 

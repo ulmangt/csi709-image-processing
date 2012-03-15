@@ -22,6 +22,19 @@ Problem 1}
 
 The results of the k-means clustering performed on 84 samples of fiduciary point data (after centering the data and calculating \(dx\) and \(dy\) offsets from the average centered grid) is included in Table \ref{gini}.
 
+\begin{figure}
+\begin{equation}\label{eq_gini}
+\begin{aligned}
+\sum_{j=1}^{k} \hat{p}_j\left ( 1 - \hat{p}_j \right )
+\end{aligned}
+\end{equation}
+\caption{Gini Index Definition}
+\end{figure}
+
+In addition to listing the names of the people associated with the data elements assigned to each cluster, Table \ref{gini} lists the Gini Index of the cluster. The Gini index is a measure of the purity of a grouping which is often employed when constructing classification trees. Let \(k\) be the number of classes (the total number of different people present in the cluster) and \(\hat{p}_j\) be the percentage of the class consisting of class \(j\), the Gini Index is given by Equation \ref{eq_gini}. A Gini index of \(0.0\) indicates a completely pure cluster with only one class. Higher Gini index values indicate increasingly impure classes.
+
+It is clear from Table \ref{gini} that there is structure in the data (a large number of classes have \(0.0\) to \(0.4\) Gini Index and have at most \(1\) data value not like the others. However, there are also large clusters with many different values. This indicates that perhaps results could be improved by rebreaking those large clusters.
+
 \begin{table}\scriptsize
 \begin{center}
 \caption{Contents and Gini Index of K-Means Clusters}
@@ -66,18 +79,24 @@ mmdm2,mmdm2,mmdm2,mmdm2 & 0.000 \\
 \end{table}
 \label{gini}
 
+\section{PCA Classification}
+
+Figure \ref{pca1} and Figure \ref{pca2} provide two different views of the 84 data points projected into PCA space consisting of the three principal components with the largest eigenvalues. Clearly there is some grouping among the 20 people represented among the 84 data points.
+
 \begin{figure}
 \centering
-\includegraphics[width=0.30\textwidth]{problem1-fid-pca-1.png}
+\includegraphics[width=1.00\textwidth]{problem1-fid-pca-1.png}
 \caption{Fiduciary Point Offsets In PCA Space}
 \label{pca1}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.30\textwidth]{problem1-fid-pca-2.png}
+\includegraphics[width=1.00\textwidth]{problem1-fid-pca-2.png}
 \caption{Fiduciary Point Offsets In PCA Space (Rotated View)}
 \label{pca2}
 \end{figure}
+
+To determine the predictive capacity of the recognition system based on fiducial lattices projected into PCA space, leave-one-out cross validation was used. Eighty four different PCA spaces were constructed, each with one data point removed. That data point was then projected into the PCA space and classified using a simple 1-Nearest Neighbor classification. This approach achieved only a 0.36 classification success rate. However, because there are 20 possible people, we would only expect a 0.05 success rate from random guessing.
 
 \end{document}

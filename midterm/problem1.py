@@ -43,11 +43,7 @@ def recognition_system( data_directory ):
   # of each cluster)
   for names in mmb_names:
     gini = calculateGiniIndex( names )
-    s = ''
-    for n in names:
-      s += n + ","
-    print "%(s)s %(1)s %(g)0.3f %(slash)s" % {'slash': "\\\\" , '1': '&', 'g':gini, 's': s}
-    #print 'Cluster: ', names, 'Gini Index: ', gini
+    print 'Cluster: ', names, 'Gini Index: ', gini
  
   # calculate some sizes then reshape the centered dx/dy fiduciary point data
   # into a 2D matrix with a column vector of data (size 90) for each person

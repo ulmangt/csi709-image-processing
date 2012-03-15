@@ -31,9 +31,9 @@ The results of the k-means clustering performed on 84 samples of fiduciary point
 \caption{Gini Index Definition}
 \end{figure}
 
-In addition to listing the names of the people associated with the data elements assigned to each cluster, Table \ref{gini} lists the Gini Index of the cluster. The Gini index is a measure of the purity of a grouping which is often employed when constructing classification trees. Let \(k\) be the number of classes (the total number of different people present in the cluster) and \(\hat{p}_j\) be the percentage of the class consisting of class \(j\), the Gini Index is given by Equation \ref{eq_gini}. A Gini index of \(0.0\) indicates a completely pure cluster with only one class. Higher Gini index values indicate increasingly impure classes.
+In addition to listing the names of the people associated with the data elements assigned to each cluster, Table \ref{gini} lists the Gini Index of the cluster. The Gini index is a measure of the purity of a grouping which is often employed when constructing classification trees. Let \(k\) be the number of classes (the total number of different people present in the cluster) and \(\hat{p}_j\) be the percentage of the cluster consisting of class \(j\), then the Gini Index is given by Equation \ref{eq_gini}. A Gini index of \(0.0\) indicates a completely pure cluster with only one class. Higher Gini index values indicate increasingly impure classes.
 
-It is clear from Table \ref{gini} that there is structure in the data (a large number of classes have \(0.0\) to \(0.4\) Gini Index and have at most \(1\) data value not like the others. However, there are also large clusters with many different values. This indicates that perhaps results could be improved by rebreaking those large clusters.
+It is clear from Table \ref{gini} that there is structure in the data (a large number of classes have \(0.0\) to \(0.4\) Gini Index and have at most \(1\) data value not like the others). However, there are also large clusters with many different values. This indicates that perhaps results could be improved by rebreaking those large clusters. Note that because the k-means clustering routine starts with random initial clusters, the values in Table \ref{gini} only represent one possible clustering result.
 
 \begin{table}\scriptsize
 \begin{center}
@@ -81,7 +81,7 @@ mmdm2,mmdm2,mmdm2,mmdm2 & 0.000 \\
 
 \section{PCA Classification}
 
-Figure \ref{pca1} and Figure \ref{pca2} provide two different views of the 84 data points projected into PCA space consisting of the three principal components with the largest eigenvalues. Clearly there is some grouping among the 20 people represented among the 84 data points.
+Figure \ref{pca1} and Figure \ref{pca2} provide two different views of the 84 data points projected into PCA space consisting of the three principal components with the largest eigenvalues. This paper is also packaged with larger image versions of these plots. Clearly there is some grouping among the 20 people represented by the 84 data points.
 
 \begin{figure}
 \centering
@@ -97,6 +97,6 @@ Figure \ref{pca1} and Figure \ref{pca2} provide two different views of the 84 da
 \label{pca2}
 \end{figure}
 
-To determine the predictive capacity of the recognition system based on fiducial lattices projected into PCA space, leave-one-out cross validation was used. Eighty four different PCA spaces were constructed, each with one data point removed. That data point was then projected into the PCA space and classified using a simple 1-Nearest Neighbor classification. This approach achieved only a 0.36 classification success rate. However, because there are 20 possible people, we would only expect a 0.05 success rate from random guessing.
+To determine the predictive capacity of this recognition system based on fiducial lattices projected into PCA space, leave-one-out cross validation was used. Eighty four different PCA spaces were constructed, each with one data point removed. That data point was then projected into the PCA space and classified using a simple 1-Nearest Neighbor classification. This approach achieved only a 0.36 classification success rate. However, because there are 20 possible people, we would only expect a 0.05 success rate from random guessing.
 
 \end{document}

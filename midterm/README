@@ -1,0 +1,25 @@
+
+===========================================================
+============ Running geoff_ulman_problem1.py ==============
+===========================================================
+
+1) Ensure that the CSI709 class python scripts from Blackboard (eface, sophia, etc...) are available on the python path.
+
+2) Run the following in python:
+
+import geoff_ulman_problem1.py
+geoff_ulman_problem1.recognition_system( '/path/to/fiduciary/grid/files' )
+
+
+
+
+===========================================================
+============ Running geoff_ulman_problem2.py ==============
+===========================================================
+
+1) Ensure that the CSI709 class python scripts from Blackboard (eface, sophia, etc...) are available on the python path.
+
+2) Run the following in python:
+
+import geoff_ulman_problem2.py
+geoff_ulman_problem2.countBoatsFile( '/path/to/boatsmall.jpg' )

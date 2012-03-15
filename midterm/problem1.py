@@ -1,6 +1,6 @@
 import os, sys, scipy, numpy, math, operator
 from eface import *
-from numpy import cov
+from numpy import cov, dot
 from kmeans import Init2, Split
 
 def main( ):
@@ -25,6 +25,8 @@ def recognition_system( data_directory ):
   # average fiduciary point
   diffFids( fids, fidavg )
 
+  print '\n\nRunning K-Means Clustering...\n'
+
   # there are 20 unique people in the dataset, so use 20 clusters
   clust1, mmb = kMeansCluster( 20, array( fids ) )
 
@@ -32,41 +34,129 @@ def recognition_system( data_directory ):
   # from indices into person identifiers
   name_map, name_list = getPersonMapping( fidnames )
   mmb_names = substitudeIndicesForNames( mmb, name_list )
+  # get the names of the people in the data set
+  gnames = GetNames( fidnames )
+
+  print '\n\nCalculating Gini Index of Clusters...\n'
 
   # calculate the gini index for each cluster (a sense of the purity
   # of each cluster)
   for names in mmb_names:
     gini = calculateGiniIndex( names )
-    print 'Cluster: ', names, 'Gini Index: ', gini
+    s = ''
+    for n in names:
+      s += n + ","
+    print "%(s)s %(1)s %(g)0.3f %(slash)s" % {'slash': "\\\\" , '1': '&', 'g':gini, 's': s}
+    #print 'Cluster: ', names, 'Gini Index: ', gini
  
   # calculate some sizes then reshape the centered dx/dy fiduciary point data
   # into a 2D matrix with a column vector of data (size 90) for each person
   num_people = len( fids )
   data_per_person = reduce(operator.mul, fids[0].shape )
   fids_pca_in = numpy.array( fids ).reshape( ( num_people, data_per_person ) )
-  
-  # transform the fiduciary points into a 3 dimensional PCA space which we can plot
-  cffs, vecs = PCA( fids_pca_in, 3 )
 
-  # get the names of the people in the data set
-  gnames = GetNames( fidnames )
+  # calculate the bias in the input data  
+  fids_pca_mean = fids_pca_in.mean( 0 )
+
+  print '\n\nPerforming Leave-One-Out Cross Validation...\n'
+
+  print 'Predicted Class, True Class, Distance To Neighbor'
+
+  # perform leave-one-out cross-validation on the recognition system
+  # create 84 (num_people) different PCA spaces, each using 83 of the
+  # data points, and use it to attempt to classify the remaining data point
+  correct_count = 0
+  for i in range( num_people ):
+    fids_pca_in_minus_one = numpy.delete( fids_pca_in, i, 0 )
+    name_list_minus_one = list(name_list)
+    name_list_minus_one.pop( i )
+
+    # transform the fiduciary points into a 3 dimensional PCA space which we can plot
+    cffs, vecs = PCA( fids_pca_in_minus_one, 3 )
+
+    # transform the unknown point into pca space
+    unk_point = fidToPcaSpace( fids_pca_in[i], vecs )
+  
+    # use the known points to classify the unknown point
+    dist, unk_class = classify( unk_point, cffs, name_list_minus_one )
+
+    # get the true classification of the 'unknown' point
+    true_class = name_list[i]
+
+    # count how many we get right
+    if unk_class == true_class :
+      correct_count += 1
+      print 'CORRECT:', unk_class, true_class, dist
+    else:
+      print 'WRONG:', unk_class, true_class, dist
+
+
+  # calculate and print the estimate error of the classification system
+  error = 1 - float( correct_count ) / float( num_people )
+
+  print '\nClassification Error:', error
 
   # use the routine from the class resource eface.py to generate a gnuplot command
-  plot_command = PlotPeople( cffs, fidnames, gnames )
+  # commented out since it generates lots of files
+  #plot_command = PlotPeople( cffs, fidnames, gnames )
 
-  # return a number of useful results from the above processing
-  return fids, clust1, mmb, plot_command
+
+
+def classify( unknown, known_list, name_list ):
+  """given an unknown point in PCA space and a list of known points in PCA space
+     (identified by the correpsonding entries in name_list), use a simple
+     nearest neighbor classifier to classify the unknown point"""
+ 
+  closestDist = None
+  closestName = None
+
+  for i, name in enumerate( name_list ) :
+
+   # calculate the euclidian distance between the unknown and known point
+    dist = numpy.linalg.norm( unknown - known_list[i] )
+  
+    # search through the points, looking for the closest
+    if closestDist == None or dist < closestDist:
+      closestDist = dist
+      closestName = name
+
+  # return the classification of the closest known point we found
+  # this is our classification of the unknown point
+  return closestDist, closestName
+
+
+
+def fidToPcaSpace( fid, vecs ):
+  """given a set of fiduciary points and a set of vectors defining a PCA space
+     transforms the given fiduciary points into the PCA space"""
+
+  # allocate an array to return the result in
+  result = zeros( len( vecs ) )
+
+  # iterate over the eigenvectors, dotting each with the ficuciary point data vector
+  for i, vec in enumerate( vecs ):
+    result[i] = dot( fid, vec )
+
+  # return the result
+  return result
+
 
 
 # pca.py
 # modified from class materials, chapter 8 Principal Component Analysis
 def PCA( indata, D=2 ):
+  """given fiduciary points from multiple faces, construct a PCA space
+     with D dimensions and project the fiduciary points into the new space"""
+
   # center the data (remove bias)
   a = indata - indata.mean(0)
+
   # calculate covariance
   cv = cov( a.transpose() )
+
   # calculate eigenvectors and eigenvalues
   evl, evc = numpy.linalg.eig( cv )
+
   # map the input data intp the new eigenvalue space 
   V,H = indata.shape
   cffs = zeros( (V,D) )
@@ -79,8 +169,9 @@ def PCA( indata, D=2 ):
       cffs[i,k] = (indata[i] * evc[:,j]).sum()
       k += 1
   vecs = evc[:,me].transpose()
-  print me, evl[me]
+
   return cffs, vecs
+
 
 
 def calculateGiniIndex( names ):
@@ -107,6 +198,7 @@ def calculateGiniIndex( names ):
   return accum
 
 
+
 def substitudeIndicesForNames( mmb, name_list ):
   """given the output of kMeansCluster(), returns an array with person names
      substituted for the data indices
@@ -120,7 +212,10 @@ def substitudeIndicesForNames( mmb, name_list ):
 
   return mmb_name
 
-# modified from class materials, eface.py
+
+
+# eface.py
+# modified from class materials
 def getPersonMapping( fidnames ):
   """takes a list of fidname files and create a mapping
      from data index to person name, also returns a list where each index contains
@@ -138,7 +233,10 @@ def getPersonMapping( fidnames ):
     people_list[i] = me
   return ( people_map, people_list )
 
-# modified from class materials, kmeans.py
+
+
+# kmeans.py
+# modified from class materials
 def kMeansCluster( K, data ):
   """KMeans clustering driver"""
 
@@ -162,7 +260,10 @@ def kMeansCluster( K, data ):
 
   return clust1, mmb
 
-# modified from class materials, kmeans.py
+
+
+# kmeans.py
+# modified from class materials
 def AssignMembership( clusts, data ):
   """Decide which cluster each vector belongs to"""
   NC = len( clusts )
@@ -181,7 +282,8 @@ def AssignMembership( clusts, data ):
 
 
 
-# modified from class materials, kmeans.py
+# kmeans.py
+# modified from class materials
 def DiffClust( clust1, clust2 ):
   """a metric for comparing a given target set of fiduciary points against
      a list of other sets of fiduciary points. Based on clustering.CompareVecs()
@@ -196,7 +298,9 @@ def DiffClust( clust1, clust2 ):
   return distances.sum( 0 )
 
 
-# modified from class materials, kmeans.py
+
+# kmeans.py
+# modified from class materials
 def ClusterAverage( mmb, data ):
   """ClusterAverage modified from kmeans.py to accept cluster
      averages consisting of 45 x,y fiduciary point pairs"""
@@ -218,11 +322,14 @@ def ClusterAverage( mmb, data ):
   return clusts
 
 
+
 def diffFids( fids, fidavg ):
   """calculate the offset of each fiduciary point in fids from its corresponding
      fiduciary point in fidavg"""
   for i in xrange( len( fids ) ):
     fids[i] = fids[i] - fidavg
+
+
 
 def shiftFids( fids ):
   """shift all the fiduciary points so that the origin falls on the point
@@ -231,11 +338,15 @@ def shiftFids( fids ):
     center = calcCenter( fids[i] )
     fids[i] = fids[i] - center
 
+
+
 def calcCenter( fid ):
   """calculate the average of the two nostril fiduciary points, we define
      this value as the center of the fiduciary point grid"""
   #fiduciary points at index 14 and 15 are the left and right nostrils
   return fid[14:16].mean(0)
+
+
 
 if __name__ == "__main__":
   main() 

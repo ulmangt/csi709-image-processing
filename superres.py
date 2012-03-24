@@ -46,16 +46,18 @@ def bilinearZoom( img ):
       n23 = y 
 
       # build and solve the linear system
-      A = numpy.array( [[ 1, n10, n20, n10*n20 ]
-                        [ 1, n11, n21, n11*n21 ]
-                        [ 1, n12, n22, n12*n22 ]
+      A = numpy.array( [[ 1, n10, n20, n10*n20 ],
+                        [ 1, n11, n21, n11*n21 ],
+                        [ 1, n12, n22, n12*n22 ],
                         [ 1, n13, n23, n13*n23 ]] )
 
       y = numpy.array( [ mat[n10,n20], mat[n11,n21], mat[n12,n22], mat[n13,n23] ] ) 
 
-      coef = numpy.linalg.solve( A, y )
-
-      high_mat[x,y] = coef[0] + coef[1]*x + coef[2]*y + coef[3]*x*y
+      try:
+        coef = numpy.linalg.solve( A, y )
+        high_mat[x,y] = coef[0] + coef[1]*x + coef[2]*y + coef[3]*x*y
+      except numpy.linalg.linalg.LinAlgError as err:
+        print 'Singular Matrix: ', A
 
   return high_mat
 

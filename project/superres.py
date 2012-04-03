@@ -40,22 +40,22 @@ def bilinearZoom( mat ):
   #high_mat = numpy.copy( mat )
   high_mat = numpy.zeros( mat.shape )
 
-  for x in xrange( 0, mat.shape[0]-1 ):
-    for y in xrange( 0, mat.shape[1]-1 ):
+  for x in xrange( 1, mat.shape[0]-1 ):
+    for y in xrange( 1, mat.shape[1]-1 ):
 
       # name the indices of the four surrounding pixels
       # in the same manner as Bovik in Handbook of Image and Video Processing
-      n10 = x-1
+      n10 = x
       n20 = y-1
 
-      n11 = x-1
+      n11 = x
       n21 = y+1  
 
-      n12 = x+1
-      n22 = y-1 
+      n12 = x-1
+      n22 = y 
 
       n13 = x+1
-      n23 = y+1 
+      n23 = y+1
 
       # build and solve the linear system
       A = numpy.array( [[ 1, n10, n20, n10*n20 ],

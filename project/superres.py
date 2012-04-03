@@ -1,12 +1,25 @@
 import os, sys, scipy, numpy, Image, sophia, operator
 
 def main():
-  mat_low = loadImage( 'boatsmall.jpg', (100,100,150,150) )
+  # load a small section of the boat image
+  mat_low = loadImage( 'boatsmall.jpg', (100,100,200,200) )
+
+  # perform nearest neighbor and bilinear interpolation
+  # to zoom the image x2
   mat_nn = nearestNeighborZoom( mat_low )
   mat_bi = bilinearZoom( mat_low )
 
+  # show the results
   sophia.a2i( mat_nn ).show()
   sophia.a2i( mat_bi ).show()
+
+  # look for patches of the image similar to the given
+  # patch at (100,100,120,120)
+  d = scorePatches( mat_low, (0,79,20,99) )
+
+  # create a 5 by 5 grid of the most similar 25 patches
+  mat_patch = displayPatches( mat_low, d, 5, 5 )
+  sophia.a2if( mat_patch ).show() 
 
 def loadImage( path, crop=None ):
   """
@@ -75,6 +88,27 @@ def bilinearZoom( mat ):
 
   return high_mat
 
+def displayPatches( mat, d, rows, cols ):
+  """
+  Given an image matrix, a dictionary produced by scorePatches(), and a number of rows and columns.
+  Returns a larg image matrix with the best rows*cols patches from d tiled in the image.
+  """
+
+  first = d[0]
+  width = first[0][2] - first[0][0]
+  height = first[0][3] - first[0][1]
+
+  img = numpy.zeros( ( cols * width, rows * height ) )
+
+  count = 0
+  for x in xrange( cols ):
+    for y in xrange( rows ):
+      patch = d[count][0]
+      img[ x*width:(x+1)*width , y*height:(y+1)*height ] = mat[ patch[0]:patch[2], patch[1]:patch[3] ] 
+      count = count + 1
+
+  return img
+
 def scorePatches( mat, patch ):
   """
   Given an image matrix and a four-tuple representing the upper left and lower right corners of a
@@ -88,8 +122,8 @@ def scorePatches( mat, patch ):
   patch_height = patch[3] - patch[1]
 
   # get the width and height of the overall image
-  image_width = mat.shape[0]
-  image_height = mat.shape[1]
+  image_width = mat.shape[1]
+  image_height = mat.shape[0]
 
   # create a dictionary of patches and their scores
   d = {}
@@ -118,15 +152,15 @@ def scorePatch( mat, target_patch, candidate_patch ):
   patch_height = target_patch[3] - target_patch[1]
 
   # get the width and height of the overall image
-  image_width = mat.shape[0]
-  image_height = mat.shape[1]
+  image_width = mat.shape[1]
+  image_height = mat.shape[0]
 
   score = 0
   
   for x in xrange( patch_width ):
     for y in xrange( patch_height ):
-      target_pixel = mat[target_patch[0]+x,target_patch[1]+y]
-      candidate_pixel = mat[candidate_patch[0]+x,candidate_patch[1]+y]
+      target_pixel = mat[target_patch[1]+y,target_patch[0]+x]
+      candidate_pixel = mat[candidate_patch[1]+y,candidate_patch[0]+x]
       score += (target_pixel-candidate_pixel)**2
 
   return numpy.sqrt( score )

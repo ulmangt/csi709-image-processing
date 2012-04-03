@@ -9,6 +9,11 @@ def main():
   sophia.a2i( mat_bi ).show()
 
 def loadImage( path, crop ):
+  """
+  Loads the image at the provided path, crops it, and returns a matrix
+  representation of the image converted to grayscale.
+  """
+
   return sophia.i2a( Image.open( findFile( path ) ).crop( crop ).convert( 'L' ) )
 
 def nearestNeighborZoom( mat ):
@@ -67,6 +72,55 @@ def bilinearZoom( mat ):
         print 'Singular Matrix: ', A
 
   return high_mat
+
+def scorePatches( mat, patch ):
+  """
+  Given an image matrix and a four-tuple representing the upper left and lower right corners of a
+  sub-section of the image.
+  Score all similarly sized sections of the image for their similarity to the given patch and return
+  a list of the patch coordinates sorted by similarity score.
+  """
+
+  # get the width and height of the search patch
+  patch_width = patch[2] - patch[0]
+  patch_height = patch[3] - patch[1]
+
+  # get the width and height of the overall image
+  image_width = mat.shape[0]
+  image_height = mat.shape[1]
+
+  # create a dictionary of patches and their scores
+  d = {}
+
+  for x in xrange( image_width - patch_width ):
+    for y in xrange( image_height - patch_height ):
+      candidate_patch = (x, y, x+patch_width, y+patch_height)
+      score = scorePatch( mat, patch, candidate_patch )
+
+def scorePatch( mat, target_patch, candidate_patch ): 
+  """
+  Given an image matrix and two patches (cropped sections of the image matrix which must be the same size).
+  Computes the similarity between the two patches where similarity is defined as the sum of the squared
+  differences between pixel intensities of corresponding pixels in the patches.
+  """
+
+  # get the width and height of the search patch
+  patch_width = target_patch[2] - target_patch[0]
+  patch_height = target_patch[3] - target_patch[1]
+
+  # get the width and height of the overall image
+  image_width = mat.shape[0]
+  image_height = mat.shape[1]
+
+  score = 0
+  
+  for x in xrange( patch_width ):
+    for y in xrange( patch_height ):
+      target_pixel = mat[target_patch[1]+y,target_patch[0]+x]
+      candidate_pixel = mat[candidate_patch[1]+y,candidate_patch[0]+x]
+      score += (target_pixel-candidate_pixel)**2
+
+  return numpy.sqrt( score )
 
 # inspired by: http://dotnot.org/blog/archives/2004/03/06/find-a-file-in-pythons-path/
 # I wanted a way to automatically find the named image file in the same way python finds imported modules (similar to seaching for resources on the Java classpath)

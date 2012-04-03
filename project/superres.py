@@ -1,7 +1,12 @@
 import os, sys, scipy, numpy, Image, sophia
 
 def main():
-  print "main"
+  mat_low = loadImage( 'boatsmall.jpg', (100,100,150,150) )
+  mat_nn = nearestNeighborZoom( mat_low )
+  mat_bi = bilinearZoom( mat_low )
+
+  sophia.a2i( mat_nn ).show()
+  sophia.a2i( mat_bi ).show()
 
 def loadImage( path, crop ):
   return sophia.i2a( Image.open( findFile( path ) ).crop( crop ).convert( 'L' ) )
@@ -57,7 +62,6 @@ def bilinearZoom( mat ):
 
       try:
         coef = numpy.linalg.solve( A, b )
-        print coef
         high_mat[x,y] = coef[0] + coef[1]*x + coef[2]*y + coef[3]*x*y
       except numpy.linalg.linalg.LinAlgError as err:
         print 'Singular Matrix: ', A

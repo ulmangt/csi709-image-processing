@@ -1,4 +1,4 @@
-import os, sys, scipy, numpy, Image, sophia
+import os, sys, scipy, numpy, Image, sophia, operator
 
 def main():
   mat_low = loadImage( 'boatsmall.jpg', (100,100,150,150) )
@@ -8,13 +8,15 @@ def main():
   sophia.a2i( mat_nn ).show()
   sophia.a2i( mat_bi ).show()
 
-def loadImage( path, crop ):
+def loadImage( path, crop=None ):
   """
   Loads the image at the provided path, crops it, and returns a matrix
   representation of the image converted to grayscale.
   """
-
-  return sophia.i2a( Image.open( findFile( path ) ).crop( crop ).convert( 'L' ) )
+  if crop:
+    return sophia.i2a( Image.open( findFile( path ) ).crop( crop ).convert( 'L' ) )
+  else:
+    return sophia.i2a( Image.open( findFile( path ) ).convert( 'L' ) )
 
 def nearestNeighborZoom( mat ):
   """
@@ -92,10 +94,17 @@ def scorePatches( mat, patch ):
   # create a dictionary of patches and their scores
   d = {}
 
-  for x in xrange( image_width - patch_width ):
-    for y in xrange( image_height - patch_height ):
+  # iterate through each pixel in the image, creating a candidate patch
+  # using that pixel as its upper left corner and score that candidate
+  # against the target patch
+  for x in xrange( image_width - patch_width - 1 ):
+    print x , '/' , image_width - patch_width - 1
+    for y in xrange( image_height - patch_height - 1 ):
       candidate_patch = (x, y, x+patch_width, y+patch_height)
       score = scorePatch( mat, patch, candidate_patch )
+      d[candidate_patch] = score
+
+  return sorted(d.iteritems(), key=operator.itemgetter(1))
 
 def scorePatch( mat, target_patch, candidate_patch ): 
   """
@@ -116,8 +125,8 @@ def scorePatch( mat, target_patch, candidate_patch ):
   
   for x in xrange( patch_width ):
     for y in xrange( patch_height ):
-      target_pixel = mat[target_patch[1]+y,target_patch[0]+x]
-      candidate_pixel = mat[candidate_patch[1]+y,candidate_patch[0]+x]
+      target_pixel = mat[target_patch[0]+x,target_patch[1]+y]
+      candidate_pixel = mat[candidate_patch[0]+x,candidate_patch[1]+y]
       score += (target_pixel-candidate_pixel)**2
 
   return numpy.sqrt( score )

@@ -1,4 +1,5 @@
 import os, sys, scipy, numpy, Image, sophia, operator
+from numpy import sum, sqrt, zeros, array
 
 def main():
   # load a small section of the boat image
@@ -53,9 +54,7 @@ def bilinearZoom( mat ):
   """
 
   mat = nearestNeighborZoom( mat )
-
-  #high_mat = numpy.copy( mat )
-  high_mat = numpy.zeros( mat.shape )
+  high_mat = zeros( mat.shape )
 
   for x in xrange( 1, mat.shape[0]-1 ):
     for y in xrange( 1, mat.shape[1]-1 ):
@@ -75,22 +74,61 @@ def bilinearZoom( mat ):
       n23 = y+1
 
       # build and solve the linear system
-      A = numpy.array( [[ 1, n10, n20, n10*n20 ],
+      A = array( [[ 1, n10, n20, n10*n20 ],
                         [ 1, n11, n21, n11*n21 ],
                         [ 1, n12, n22, n12*n22 ],
                         [ 1, n13, n23, n13*n23 ]] )
 
-      b = numpy.array( [ mat[n10,n20], mat[n11,n21], mat[n12,n22], mat[n13,n23] ] ) 
+      b = array( [ mat[n10,n20], mat[n11,n21], mat[n12,n22], mat[n13,n23] ] ) 
 
       try:
+
         coef = numpy.linalg.solve( A, b )
         high_mat[x,y] = coef[0] + coef[1]*x + coef[2]*y + coef[3]*x*y
+ 
       except numpy.linalg.linalg.LinAlgError as err:
+ 
         print 'Singular Matrix: ', A
 
   return high_mat
 
+
+def patchSimilarityZoom( mat, size=5, k=9 ):
+  """
+  Zooms image 2x.
+  Utilizes patch similarity within the single image. For each 5x5 subsection of the image,
+  similar patches in other parts of the image are searched for. Those patches are then
+  treated as if they are all independent images of the initial patch and are used to
+  reconstruct a high resolution version of the original patch. This process is repeated
+  across the entire image.
+  See: Daniel Glasner, Shai Bagon, and Michal Irani. Super-resolution from a Single Image.
+       http://www.wisdom.weizmann.ac.il/~vision/SingleImageSR.html
+  """
+
+  high_mat = zeros( (mat.shape[0]*2,mat.shape[1]*2) )
+
+  width = mat.shape[1]
+  height = mat.shape[0]
+
+  # loop over pixels in the low resolution image
+  for x in xrange( 1, width ):
+    for y in xrange( 1, height ):
+
+      # calculate the patch bounds (watching for edge conditions)
+      x1 = max( 0, x-size/2 )
+      y1 = max( 0, y-size/2 )
+      x2 = min( width-1, x+size/2 )
+      y2 = min( height-1, y+size/2 )
+      patch = ( x1, y1, x2, y2 )
+
+      # find similar patches
+      d = scorePatches( mat, patch )  
+
+      ######### INCOMPLETE ##########
+
+
 def displayPatch( mat, patch ):
+  """Display a rectangular subsection of the given image matrix."""
   sophia.a2i( mat[ patch[1]:patch[3], patch[0]:patch[2] ] ).show()
 
 def displayPatches( mat, d, rows, cols ):
@@ -103,7 +141,7 @@ def displayPatches( mat, d, rows, cols ):
   width = first[0][2] - first[0][0]
   height = first[0][3] - first[0][1]
 
-  img = numpy.zeros( ( cols * width, rows * height ) )
+  img = zeros( ( cols * width, rows * height ) )
 
   count = 0
   for x in xrange( cols ):
@@ -145,6 +183,8 @@ def scorePatches( mat, patch ):
 
   return sorted(d.iteritems(), key=operator.itemgetter(1))
 
+
+
 def scorePatch( mat, target_patch, candidate_patch ): 
   """
   Given an image matrix and two patches (cropped sections of the image matrix which must be the same size).
@@ -158,14 +198,12 @@ def scorePatch( mat, target_patch, candidate_patch ):
 
   score = 0
   
-  for x in xrange( patch_width ):
-    for y in xrange( patch_height ):
-      target_pixel = mat[target_patch[1]+y,target_patch[0]+x]
-      candidate_pixel = mat[candidate_patch[1]+y,candidate_patch[0]+x]
-      #print target_pixel, candidate_pixel, ( target_pixel - candidate_pixel )
-      score = score + (target_pixel-candidate_pixel)**2
+  target_mat = mat[target_patch[1]:target_patch[3],target_patch[0]:target_patch[2]]
+  candidate_mat = mat[candidate_patch[1]:candidate_patch[3],candidate_patch[0]:candidate_patch[2]]
 
-  return numpy.sqrt( score )
+  return sqrt( sum( ( target_mat - candidate_mat )**2 ) )
+
+
 
 # inspired by: http://dotnot.org/blog/archives/2004/03/06/find-a-file-in-pythons-path/
 # I wanted a way to automatically find the named image file in the same way python finds imported modules (similar to seaching for resources on the Java classpath)

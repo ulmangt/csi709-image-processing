@@ -24,6 +24,8 @@ def findBoats( image_name, fp, num_train, prefix_train, extension_train ):
 
   corr = sophia.Correlate( full_image, filt )
 
+  sophia.a2i( corr.real ).show()
+
   return filt, corr, centered_boats
 
 def loadBoats( num, prefix, extension ):

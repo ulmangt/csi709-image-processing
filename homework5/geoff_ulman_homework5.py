@@ -1,38 +1,44 @@
 import os, sys, scipy, numpy, Image, sophia, color, fpf
+from scipy.fftpack import fft2, ifft2
 
 def main():
-  return findBoats( "boatsmall.jpg", 18, "boat", "png" )
+  return findBoats( "boatsmall.jpg", 0, 18, "boat", "png" )
 
-def findBoats( image_name, num_train, prefix_train, extension_train ):
-  image = sophia.i2a( Image.open( findfile( image_name ) ).convert( 'L' ) ) 
+def findBoats( image_name, fp, num_train, prefix_train, extension_train ):
+  full_image = loadMatrix( image_name )
   boats = loadBoats( num_train, prefix_train, extension_train )
   
-  rows = image.shape[0]
-  cols = image.shape[1]
+  rows = full_image.shape[0]
+  cols = full_image.shape[1]
 
   mat_boats = numpy.zeros( ( num_train, rows * cols ) )
   centered_boats = []
   for i,boat in enumerate( boats ):
     centered_boat = sophia.Plop( boat, rows, cols )
     centered_boats.append( centered_boat )
-    mat_boats[i,:] = centered_boat.ravel( )
+    mat_boats[i,:] = fft2( centered_boat ).ravel( )
 
   constraint = numpy.ones( num_train )
 
-  filt = fpf.FPF( mat_boats, constraint, 2 )
+  filt = ifft2( fpf.FPF( mat_boats, constraint, fp ).reshape( full_image.shape ) )
 
-  return filt.reshape( image.shape )
+  corr = sophia.Correlate( full_image, filt )
+
+  return filt, corr, centered_boats
 
 def loadBoats( num, prefix, extension ):
   boats = []
   
   for i in xrange( num ):
     name = prefix + str(i) + "." + extension
-    mat = sophia.i2a( Image.open( findfile( name ) ).convert( 'L' ) ) 
+    mat = loadMatrix( name )
     boats.append( mat )
   
   return boats
 
+def loadMatrix( name ):
+  image = Image.open( findfile( name ) ).convert( 'L' )
+  return sophia.i2a( image ).astype( float ) / 255
 
 # inspired by: http://dotnot.org/blog/archives/2004/03/06/find-a-file-in-pythons-path/
 # I wanted a way to automatically find the named image file in the same way python finds imported modules (similar to seaching for resources on the Java classpath)

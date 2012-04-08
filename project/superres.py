@@ -105,27 +105,54 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
        http://www.wisdom.weizmann.ac.il/~vision/SingleImageSR.html
   """
 
+  # create a matrix for the pixel values of the high resolution image
   high_mat = zeros( (mat.shape[0]*2,mat.shape[1]*2) )
 
+  # get the width and height of the low resolution image
   width = mat.shape[1]
   height = mat.shape[0]
+
+  # create a square gaussian kernel
+  kernel = createGaussianKernel( size )
 
   # loop over pixels in the low resolution image
   for x in xrange( 1, width ):
     for y in xrange( 1, height ):
 
       # calculate the patch bounds (watching for edge conditions)
-      x1 = max( 0, x-size/2 )
-      y1 = max( 0, y-size/2 )
-      x2 = min( width-1, x+size/2 )
-      y2 = min( height-1, y+size/2 )
-      patch = ( x1, y1, x2, y2 )
+      patch = getPatchFromCoords( x, y, width, height, size )
 
       # find similar patches
       d = scorePatches( mat, patch )  
 
       ######### INCOMPLETE ##########
 
+def getPatchFromCoords( x, y, width, height, size ):
+  """
+  Given a pixel position, the width and height of the image, and the size
+  of the desired patch, returns a tuple with the upper left and lower right
+  pixel coordinates (inclusive) of the patch.
+  """
+  x1 = max( 0, x-size/2 )
+  y1 = max( 0, y-size/2 )
+  x2 = min( width-1, x+size/2 )
+  y2 = min( height-1, y+size/2 )
+  return ( x1, y1, x2, y2 )
+
+def createGaussianKernel( size ):
+  # create a 5x5 gaussian kernel approximation
+  # adapted from: http://scipy-lectures.github.com/intro/numpy/numpy.html
+  # with x values ranging from -4 to 4
+  kernelx = numpy.linspace( -4, 4, size )
+  kernely = numpy.exp( -0.1*t**2 )
+  # perform trapezoid rule integration to normalize
+  # the area under the kernel
+  kernel /= numpy.trapz( kernely, kernelx )
+  # treat the 1d kernel as a column vector times a row vector
+  # resulting in a 2d kernel matrix
+  kernel = kernel[:,numpy.newaxis] * kernel[numpy.newaxis,:]
+
+  return kernel
 
 def displayPatch( mat, patch ):
   """Display a rectangular subsection of the given image matrix."""

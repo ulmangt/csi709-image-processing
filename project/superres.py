@@ -7,22 +7,23 @@ def main():
 
   # perform nearest neighbor and bilinear interpolation
   # to zoom the image x2
-  mat_nn = nearestNeighborZoom( mat_low )
-  mat_bi = bilinearZoom( mat_low )
+  #mat_nn = nearestNeighborZoom( mat_low )
+  #mat_bi = bilinearZoom( mat_low )
 
   # show the results
-  sophia.a2i( mat_nn ).show()
-  sophia.a2i( mat_bi ).show()
+  #sophia.a2i( mat_nn ).show()
+  #sophia.a2i( mat_bi ).show()
 
   # look for patches of the image similar to the given
   # patch at (100,100,120,120)
-  d = scorePatches( mat_low, (0,79,20,99) )
-
+  #d = scorePatches( mat_low, (0,79,20,99) )
   # create a 5 by 5 grid of the most similar 25 patches
-  mat_patch = displayPatches( mat_low, d, 5, 5 )
-  sophia.a2if( mat_patch ).show() 
+  #mat_patch = displayPatches( mat_low, d, 5, 5 )
+  #sophia.a2if( mat_patch ).show() 
 
-  return d
+  low_val, high_val = patchSimilarityZoom( mat_low )
+
+  return low_val, high_val
 
 def loadImage( path, crop=None ):
   """
@@ -113,11 +114,6 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
   high_height = height*2
   high_size = high_width * high_height
 
-  # create a square gaussian kernel
-  # multiple by 2 because the kernel acts
-  # on the pixels of the high resolution image
-  kernel = createGaussianKernel( size * 2 )
-
   # build the linear constraint matrices
   # create an array of low resolution pixel intensities
   low_val = numpy.array( [], float )
@@ -128,18 +124,33 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
   high_val = numpy.zeros( (1,high_size) , float )
 
   # loop over pixels in the low resolution image
-  for x in xrange( 1, width ):
-    for y in xrange( 1, height ):
+  for x in xrange( 0, 1):#width ):
+    for y in xrange( 0, 1):#height ):
+
+      # create a square gaussian kernel
+      # multiple by 2 because the kernel acts
+      # on the pixels of the high resolution image
+      kernel = createGaussianKernel( x*2, y*2, width*2, height*2, size*2 )
 
       # calculate the patch bounds (watching for edge conditions)
-      patch = getPatchFromCoords( x, y, width, height, size )
+      target_patch = getPatchFromCoords( x, y, width, height, size )
 
       # find similar patches
-      d = scorePatches( mat, patch )  
+      d = scorePatches( mat, target_patch )  
 
       # add constraints for the first k similar patches
       for p in d[0:k]:
-        
+        patch, weight = p
+        # stick the kernel into the appropriate place in the matrix
+        # (given my the patch p) then ravel the matrix into a
+        # 1d constraint vector and add it to the other constraints
+        print patch, weight, high_width, high_height, kernel
+        constraint = numpy.zeros( ( high_width, high_height ), float )
+        constraint[patch[0]*2:patch[2]*2,patch[1]*2:patch[3]*2] = kernel
+        high_val = numpy.append( high_val, constraint.ravel( ) )
+        low_val = numpy.append( low_val, mat[y,x] )
+
+  return low_val, high_val
 
 def getPatchFromCoords( x, y, width, height, size ):
   """
@@ -153,18 +164,25 @@ def getPatchFromCoords( x, y, width, height, size ):
   y2 = min( height-1, y+size/2 )
   return ( x1, y1, x2, y2 )
 
-def createGaussianKernel( size ):
+def createGaussianKernel( x, y, width, height, size ):
   # create a 5x5 gaussian kernel approximation
   # adapted from: http://scipy-lectures.github.com/intro/numpy/numpy.html
   # with x values ranging from -4 to 4
   kernelx = numpy.linspace( -4, 4, size )
-  kernely = numpy.exp( -0.1*t**2 )
-  # perform trapezoid rule integration to normalize
-  # the area under the kernel
-  kernel /= numpy.trapz( kernely, kernelx )
+  kernel = numpy.exp( -0.1*kernelx**2 )
   # treat the 1d kernel as a column vector times a row vector
   # resulting in a 2d kernel matrix
   kernel = kernel[:,numpy.newaxis] * kernel[numpy.newaxis,:]
+
+  # if we are near the edge of the image, we only need a section of the kernel
+  x1 = max( 0, size/2-x )
+  y1 = max( 0, size/2-y )
+  x2 = min( size, size/2+width-x )
+  y2 = min( size, size/2+height-y )
+  kernel = kernel[x1:x2,y1:y2]
+
+  # normalize the kernel
+  kernel = kernel / numpy.sum( kernel )
 
   return kernel
 

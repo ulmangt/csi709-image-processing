@@ -105,15 +105,27 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
        http://www.wisdom.weizmann.ac.il/~vision/SingleImageSR.html
   """
 
-  # create a matrix for the pixel values of the high resolution image
-  high_mat = zeros( (mat.shape[0]*2,mat.shape[1]*2) )
-
-  # get the width and height of the low resolution image
+  # get the width and height of the high and low resolution image
   width = mat.shape[1]
   height = mat.shape[0]
 
+  high_width = width*2;
+  high_height = height*2
+  high_size = high_width * high_height
+
   # create a square gaussian kernel
-  kernel = createGaussianKernel( size )
+  # multiple by 2 because the kernel acts
+  # on the pixels of the high resolution image
+  kernel = createGaussianKernel( size * 2 )
+
+  # build the linear constraint matrices
+  # create an array of low resolution pixel intensities
+  low_val = numpy.array( [], float )
+  # create a matrix for the high resolution constraints
+  # one column for each pixel in the high resolution image
+  # and one row for each constraint (we append rows as we
+  # go since we don't know exactly how many constraints we will have)
+  high_val = numpy.zeros( (1,high_size) , float )
 
   # loop over pixels in the low resolution image
   for x in xrange( 1, width ):
@@ -125,7 +137,9 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
       # find similar patches
       d = scorePatches( mat, patch )  
 
-      ######### INCOMPLETE ##########
+      # add constraints for the first k similar patches
+      for p in d[0:k]:
+        
 
 def getPatchFromCoords( x, y, width, height, size ):
   """

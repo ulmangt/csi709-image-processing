@@ -141,13 +141,14 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
       # add constraints for the first k similar patches
       for p in d[0:k]:
         patch, weight = p
+        x1,y1,x2,y2 = patch
         # stick the kernel into the appropriate place in the matrix
         # (given my the patch p) then ravel the matrix into a
         # 1d constraint vector and add it to the other constraints
         print patch, weight, high_width, high_height, kernel
         constraint = numpy.zeros( ( high_width, high_height ), float )
-        constraint[patch[0]*2:patch[2]*2,patch[1]*2:patch[3]*2] = kernel
-        high_val = numpy.append( high_val, constraint.ravel( ) )
+        constraint[x1*2:x2*2+1,y1*2:y2*2+1] = kernel
+        high_val = numpy.vstack( ( high_val, constraint.ravel( ) ) )
         low_val = numpy.append( low_val, mat[y,x] )
 
   return low_val, high_val
@@ -251,14 +252,17 @@ def scorePatch( mat, target_patch, candidate_patch ):
   differences between pixel intensities of corresponding pixels in the patches.
   """
 
+  tx1,ty1,tx2,ty2 = target_patch
+  cx1,cy1,cx2,cy2 = candidate_patch
+
   # get the width and height of the search patch
-  patch_width = target_patch[2] - target_patch[0]
-  patch_height = target_patch[3] - target_patch[1]
+  patch_width = tx2 - tx1
+  patch_height = ty2 - ty1
 
   score = 0
   
-  target_mat = mat[target_patch[1]:target_patch[3],target_patch[0]:target_patch[2]]
-  candidate_mat = mat[candidate_patch[1]:candidate_patch[3],candidate_patch[0]:candidate_patch[2]]
+  target_mat = mat[ty1:ty2,tx1:tx2]
+  candidate_mat = mat[cy1:cy2,cx1:cx2]
 
   return sqrt( sum( ( target_mat - candidate_mat )**2 ) )
 

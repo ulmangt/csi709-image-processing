@@ -113,6 +113,7 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
   # get the width and height of the high and low resolution image
   width = mat.shape[1]
   height = mat.shape[0]
+  low_size = width * height
 
   high_width = width*2;
   high_height = height*2
@@ -120,14 +121,14 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
 
   # build the linear constraint matrices
   # create an array of low resolution pixel intensities
-  low_val = numpy.array( [], float )
+  low_val = numpy.zeros( low_size*k, float )
   # create a matrix for the high resolution constraints
   # one column for each pixel in the high resolution image
-  # and one row for each constraint (we append rows as we
-  # go since we don't know exactly how many constraints we will have)
-  high_val = numpy.zeros( (1,high_size) , float )
+  # and one row for each constraint
+  high_val = numpy.zeros( (low_size*k , high_size) , float )
 
   # loop over pixels in the low resolution image
+  index = 0
   for x in xrange( 0, width ):
     print 'row:', x, '/', width
     for y in xrange( 0, height ):
@@ -152,8 +153,9 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
         # 1d constraint vector and add it to the other constraints
         constraint = numpy.zeros( ( high_width, high_height ), float )
         constraint[x1*2:x2*2,y1*2:y2*2] = kernel
-        high_val = numpy.vstack( ( high_val, constraint.ravel( ) ) )
-        low_val = numpy.append( low_val, mat[y,x] )
+        high_val[index] = constraint.ravel( )
+        low_val[index] = mat[y,x]
+        index = index + 1
 
   return low_val, high_val
 

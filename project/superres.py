@@ -7,19 +7,23 @@ def main():
 
   # perform nearest neighbor and bilinear interpolation
   # to zoom the image x2
-  #mat_nn = nearestNeighborZoom( mat_low )
-  #mat_bi = bilinearZoom( mat_low )
+  mat_nn = nearestNeighborZoom( mat_low )
+  mat_bi = bilinearZoom( mat_low )
 
   # show the results
-  #sophia.a2i( mat_nn ).show()
-  #sophia.a2i( mat_bi ).show()
+  sophia.a2i( mat_nn ).show()
+  sophia.a2i( mat_bi ).show()
 
   # look for patches of the image similar to the given
   # patch at (100,100,120,120)
-  #d = scorePatches( mat_low, (0,79,20,99) )
+  d = scorePatches( mat_low, (0,79,20,99) )
   # create a 5 by 5 grid of the most similar 25 patches
-  #mat_patch = displayPatches( mat_low, d, 5, 5 )
-  #sophia.a2if( mat_patch ).show() 
+  mat_patch = displayPatches( mat_low, d, 5, 5 )
+  sophia.a2if( mat_patch ).show() 
+
+def main2():
+  # load a small section of the boat image
+  mat_low = loadImage( 'boatsmall.jpg', (100,150,150,200) ).astype(float)
 
   low_val, high_val = patchSimilarityZoom( mat_low )
 
@@ -124,8 +128,9 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
   high_val = numpy.zeros( (1,high_size) , float )
 
   # loop over pixels in the low resolution image
-  for x in xrange( 0, 1):#width ):
-    for y in xrange( 0, 1):#height ):
+  for x in xrange( 0, width ):
+    print 'row:', x, '/', width
+    for y in xrange( 0, height ):
 
       # create a square gaussian kernel
       # multiple by 2 because the kernel acts
@@ -145,14 +150,14 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
         # stick the kernel into the appropriate place in the matrix
         # (given my the patch p) then ravel the matrix into a
         # 1d constraint vector and add it to the other constraints
-        print patch, weight, high_width, high_height, kernel
         constraint = numpy.zeros( ( high_width, high_height ), float )
-        constraint[x1*2:x2*2+1,y1*2:y2*2+1] = kernel
+        constraint[x1*2:x2*2,y1*2:y2*2] = kernel
         high_val = numpy.vstack( ( high_val, constraint.ravel( ) ) )
         low_val = numpy.append( low_val, mat[y,x] )
 
   return low_val, high_val
 
+# size must be odd here (a size in the low rez image)
 def getPatchFromCoords( x, y, width, height, size ):
   """
   Given a pixel position, the width and height of the image, and the size
@@ -161,10 +166,13 @@ def getPatchFromCoords( x, y, width, height, size ):
   """
   x1 = max( 0, x-size/2 )
   y1 = max( 0, y-size/2 )
-  x2 = min( width-1, x+size/2 )
-  y2 = min( height-1, y+size/2 )
+  x2 = min( width, x+size/2+1 )
+  y2 = min( height, y+size/2+1 )
   return ( x1, y1, x2, y2 )
 
+# size must be even here (a size in the high rez image
+# which is double the low res, so if the low rez size
+# is odd this should be even)
 def createGaussianKernel( x, y, width, height, size ):
   # create a 5x5 gaussian kernel approximation
   # adapted from: http://scipy-lectures.github.com/intro/numpy/numpy.html
@@ -176,10 +184,10 @@ def createGaussianKernel( x, y, width, height, size ):
   kernel = kernel[:,numpy.newaxis] * kernel[numpy.newaxis,:]
 
   # if we are near the edge of the image, we only need a section of the kernel
-  x1 = max( 0, size/2-x )
-  y1 = max( 0, size/2-y )
-  x2 = min( size, size/2+width-x )
-  y2 = min( size, size/2+height-y )
+  x1 = max( 0, size/2-x-1 )
+  y1 = max( 0, size/2-y-1 )
+  x2 = min( size, size/2+width-x-1 )
+  y2 = min( size, size/2+height-y-1 )
   kernel = kernel[x1:x2,y1:y2]
 
   # normalize the kernel
@@ -235,7 +243,7 @@ def scorePatches( mat, patch ):
   # using that pixel as its upper left corner and score that candidate
   # against the target patch
   for x in xrange( image_width - patch_width ):
-    print x , '/' , image_width - patch_width
+    #print x , '/' , image_width - patch_width
     for y in xrange( image_height - patch_height ):
       candidate_patch = (x, y, x+patch_width, y+patch_height)
       score = scorePatch( mat, patch, candidate_patch )

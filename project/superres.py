@@ -23,17 +23,30 @@ def main():
 
 def main2():
   # load a small section of the boat image
-  mat_low = loadImage( 'boatsmall.jpg', (100,150,125,175) ).astype(float)
+  mat_low = loadImage( 'boatsmall.jpg', (100,150,125,165) ).astype(float)
+
+  width, height = mat_low.shape
+  high_size = width * 2 * height * 2
 
   low_val, high_val = patchSimilarityZoom( mat_low )
 
-  high_mat = numpy.linalg.lstsq( high, low )
+  def objective_fun( x ):
+    val = numpy.dot( high_val, x )
+    return numpy.sum( ( low_val - val )**2 )
 
-  width, height = mat_low.shape
+  x0 = numpy.ones( high_size ) * 128.
+  
+  x_bounds = []
+  for i in range( high_size ):
+    x_bounds.append( ( 0, 255 ) )
 
-  sophia.a2i( high_mat[0].reshape( width*2, height*2 ) ).show()
+  out, fx, its, imode, smode = scipy.optimize.fmin_slsqp( objective_fun, x0, bounds=x_bounds )
 
-  return high_mat, low_val, high_val
+  return out, fx, its, imode, smode
+
+  #high_mat = numpy.linalg.lstsq( high_val, low_val )
+  #sophia.a2i( high_mat[0].reshape( width*2, height*2 ) ).show()
+  #return high_mat, low_val, high_val
 
 def loadImage( path, crop=None ):
   """
@@ -133,6 +146,8 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
   # and one row for each constraint
   high_val = numpy.zeros( (low_size*k , high_size) , float )
 
+  print "width", width, "height", height
+
   # loop over pixels in the low resolution image
   index = 0
   for x in xrange( 0, width ):
@@ -146,6 +161,11 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
 
       # calculate the patch bounds (watching for edge conditions)
       target_patch = getPatchFromCoords( x, y, width, height, size )
+      x1,y1,x2,y2 = target_patch
+
+      # offset of patch center (usually size/2, size/2 for non-corner cases)
+      xoffset = x - x1
+      yoffset = y - y1
 
       # find similar patches
       d = scorePatches( mat, target_patch )  
@@ -153,14 +173,18 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
       # add constraints for the first k similar patches
       for p in d[0:k]:
         patch, weight = p
-        x1,y1,x2,y2 = patch
+        px1,py1,px2,py2 = patch
+
         # stick the kernel into the appropriate place in the matrix
         # (given my the patch p) then ravel the matrix into a
         # 1d constraint vector and add it to the other constraints
-        constraint = numpy.zeros( ( high_width, high_height ), float )
-        constraint[x1*2:x2*2,y1*2:y2*2] = kernel
+
+        # right now these are the same for each k images... optimize?
+        constraint = numpy.zeros( ( high_height, high_width ), float )
+        constraint[y1*2:y2*2,x1*2:x2*2] = kernel
         high_val[index] = constraint.ravel( )
-        low_val[index] = mat[y,x]
+
+        low_val[index] = mat[py1 - yoffset,px1 - xoffset]
         index = index + 1
 
   return low_val, high_val
@@ -196,7 +220,7 @@ def createGaussianKernel( x, y, width, height, size ):
   y1 = max( 0, size/2-y-1 )
   x2 = min( size, size/2+width-x-1 )
   y2 = min( size, size/2+height-y-1 )
-  kernel = kernel[x1:x2,y1:y2]
+  kernel = kernel[y1:y2,x1:x2]
 
   # normalize the kernel
   kernel = kernel / numpy.sum( kernel )

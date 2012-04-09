@@ -3,7 +3,7 @@ from numpy import sum, sqrt, zeros, array
 
 def main():
   # load a small section of the boat image
-  mat_low = loadImage( 'boatsmall.jpg', (100,100,200,200) ).astype(float)
+  mat_low = loadImage( 'boatsmall.jpg', (100,150,125,175) ).astype(float)
 
   # perform nearest neighbor and bilinear interpolation
   # to zoom the image x2
@@ -16,18 +16,24 @@ def main():
 
   # look for patches of the image similar to the given
   # patch at (100,100,120,120)
-  d = scorePatches( mat_low, (0,79,20,99) )
+  d = scorePatches( mat_low, (0,0,20,20) )
   # create a 5 by 5 grid of the most similar 25 patches
   mat_patch = displayPatches( mat_low, d, 5, 5 )
   sophia.a2if( mat_patch ).show() 
 
 def main2():
   # load a small section of the boat image
-  mat_low = loadImage( 'boatsmall.jpg', (100,150,150,200) ).astype(float)
+  mat_low = loadImage( 'boatsmall.jpg', (100,150,125,175) ).astype(float)
 
   low_val, high_val = patchSimilarityZoom( mat_low )
 
-  return low_val, high_val
+  high_mat = numpy.linalg.lstsq( high, low )
+
+  width, height = mat_low.shape
+
+  sophia.a2i( high_mat[0].reshape( width*2, height*2 ) ).show()
+
+  return high_mat, low_val, high_val
 
 def loadImage( path, crop=None ):
   """

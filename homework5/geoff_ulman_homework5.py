@@ -16,11 +16,18 @@ def findBoats( image_name, fp, num_train, prefix_train, extension_train ):
   for i,boat in enumerate( boats ):
     centered_boat = sophia.Plop( boat, rows, cols )
     centered_boats.append( centered_boat )
-    mat_boats[i,:] = fft2( centered_boat ).ravel( )
+    if fp == 0:
+      mat_boats[i,:] = centered_boat.ravel( )
+    else:
+      mat_boats[i,:] = fft2( centered_boat ).ravel( )
 
   constraint = numpy.ones( num_train )
 
-  filt = ifft2( fpf.FPF( mat_boats, constraint, fp ).reshape( full_image.shape ) )
+
+  if fp == 0:
+    filt = fpf.FPF( mat_boats, constraint, fp ).reshape( full_image.shape )
+  else:
+    filt = ifft2( fpf.FPF( mat_boats, constraint, fp ).reshape( full_image.shape ) )
 
   corr = sophia.Correlate( full_image, filt )
 

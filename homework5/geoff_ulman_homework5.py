@@ -74,6 +74,12 @@ def findBoats( fp, image_name, boats, clutter ):
   return filt, corr, centered_images
 
 def countPeaks( corr, thresh ):
+  """
+  Count the peaks in the correlation matrix for the given threshold.
+  The threshold is applied, then the resulting peaks are blurred
+  so that nearby peaks are connected. label() is then used to count
+  contiguous regions.
+  """
   peaks = ( corr > thresh ) * buildBorderMask( )
   peaks = blurMask( peaks, 5 )
   sophia.a2i( peaks ).show( )
@@ -101,9 +107,17 @@ def loadMatrix( name ):
   return sophia.i2a( image ).astype( float ) / 255
 
 def buildBorderMask( name="boatsmall.jpg" ):
+  """
+  Mask the area around the edge of the dock so that spurrious
+  detections do not show up there.
+  """
   return 1.0 - blurMask( loadMatrix( name ) < 0.01, 30 )
 
 def blurMask( mask, amount ):
+  """
+  Blurs the provided mask, expanding 1.0 cells
+  into adjacent 0.0 cells.
+  """
   kernel = numpy.ones(amount*amount,float)
   kernel = kernel / numpy.sum( kernel )
   kernel = kernel.reshape( (amount,amount) )

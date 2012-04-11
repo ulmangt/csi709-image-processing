@@ -1,0 +1,19 @@
+===========================================================
+============ Running geoff_ulman_homework5.py =============
+===========================================================
+
+1) Ensure that the CSI709 class python scripts from Blackboard (eface, sophia, etc...) and the boatsmall.jpg image are available on the python path.
+
+2) Run the following in python (for alpha = 0.4):
+
+import geoff_ulman_homework5 as hw
+filt, corr, centered_boats = hw.main_allboats( 0.4 )
+
+3) To run peak detection (note that different alpha arguments will require different thresholds for reasonable results):
+
+hw.countPeaks( corr, 0.000012 )
+
+4) To run training against two of the ships:
+
+filt, corr, centered_boats = hw.main_missingboat( 0.4 )
+hw.countPeaks( corr, 0.000009 )

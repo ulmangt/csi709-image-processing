@@ -24,7 +24,9 @@ Fractional Power Filter}
 
 Figures \ref{boats1}, \ref{boats2}, and \ref{boats3} provide samples of the cutout boat images which were used to construct the final fractional power filter.
 
-The remaining series of images demonstrates the results of correlating the original image against the filter for various \(\alpha\) values. For each \(\alpha\) value, a peak detection image along with the threshold used, is provided. Results appear best for \(\alpha\) values around \(0.7\). Closer to \(2.0\)
+The remaining series of images demonstrates the results of correlating the original image against the filter for various \(\alpha\) values. For each \(\alpha\) value, a peak detection image along with the threshold used, is provided. Peaks were counted by thresholding the correlation matrix, then blurring the resulting mask to combine nearby peaks.
+
+Figures \ref{a08missingpeak} and \ref{a08missing} show correltation images and detected peaks when training against the two large ships south of the dock. However, these ships are bright and are the same general shape and in the same direction as many of the other ships. Thus, while their peaks are reduced, they are actually still picked up by the peak detection.
 
 \begin{figure}
 \centering
@@ -135,14 +137,14 @@ The remaining series of images demonstrates the results of correlating the origi
 \centering
 \includegraphics[width=0.80\textwidth]{v2/boats_a08_missing_peak.png}
 \caption{\(\alpha=0.8\) filtered peaks \(> 1.0\e{-5}\) trained against boat 16, 17}
-\label{a07missingpeak}
+\label{a08missingpeak}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.80\textwidth]{v2/boats_a08_missing.png}
 \caption{\(\alpha=0.8\) trained against boat 16, 17}
-\label{a07missing}
+\label{a08missing}
 \end{figure}
 
 \end{document}

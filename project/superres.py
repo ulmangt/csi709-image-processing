@@ -189,6 +189,39 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
 
   return low_val, high_val
 
+def evaluateSubPixelOffset( mat, target_patch, candidate_patch, search_radius ):
+  
+  rows, cols = mat.shape
+
+  minOffset = None
+
+  for x in xrange(-search_radius,search_radius+1):
+    for y in xrange(-search_radius,search_radius+1):
+
+      tx1 = max( 0, target_patch[1]*2 + x )
+      tx2 = min( rows-1, target_patch[3]*2 + x ) 
+      ty1 = max( 0, target_patch[0]*2 + y )
+      ty2 = min( cols-1, target_patch[2]*2 + y )
+
+      cx1 = candidate_patch[1]*2
+      cx2 = cx1 + tx2 - tx1 
+      cy1 = candidate_patch[0]*2
+      cy2 = cy1 + ty2 - ty1
+
+      tmat = mat[ tx1:tx2, ty1:ty2 ]
+      cmat = mat[ cx1:cx2, cy1:cy2 ]
+
+      score = numpy.sum( ( tmat - cmat )**2 )
+
+      print score, (x, y)
+
+      if ( minOffset == None or score < minScore ):
+        minScore = score
+        minOffset = (x, y)
+
+  return minOffset
+
+
 # size must be odd here (a size in the low rez image)
 def getPatchFromCoords( x, y, width, height, size ):
   """
@@ -305,7 +338,6 @@ def scorePatch( mat, target_patch, candidate_patch ):
   candidate_mat = mat[cy1:cy2,cx1:cx2]
 
   return sqrt( sum( ( target_mat - candidate_mat )**2 ) )
-
 
 
 # inspired by: http://dotnot.org/blog/archives/2004/03/06/find-a-file-in-pythons-path/

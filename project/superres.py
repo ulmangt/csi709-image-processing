@@ -129,6 +129,9 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
        http://www.wisdom.weizmann.ac.il/~vision/SingleImageSR.html
   """
 
+  # nearest neighbor zoom matrix used for sub pixel shift calculations
+  mat_nn = nearestNeighborZoom( mat )
+
   # get the width and height of the high and low resolution image
   width = mat.shape[1]
   height = mat.shape[0]
@@ -175,13 +178,16 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
         patch, weight = p
         px1,py1,px2,py2 = patch
 
+        dx,dy = evaluateSubPixelOffset( mat_nn, target_patch, patch, 1 )
+
         # stick the kernel into the appropriate place in the matrix
         # (given my the patch p) then ravel the matrix into a
         # 1d constraint vector and add it to the other constraints
 
         # right now these are the same for each k images... optimize?
         constraint = numpy.zeros( ( high_height, high_width ), float )
-        constraint[y1*2:y2*2,x1*2:x2*2] = kernel
+
+        constraint[(y1*2+dy):(y2*2+dy),(x1*2+dx):(x2*2+dx)] = kernel
         high_val[index] = constraint.ravel( )
 
         low_val[index] = mat[py1 - yoffset,px1 - xoffset]
@@ -198,22 +204,23 @@ def evaluateSubPixelOffset( mat, target_patch, candidate_patch, search_radius ):
   for x in xrange(-search_radius,search_radius+1):
     for y in xrange(-search_radius,search_radius+1):
 
-      tx1 = max( 0, target_patch[1]*2 + x )
-      tx2 = min( rows-1, target_patch[3]*2 + x ) 
-      ty1 = max( 0, target_patch[0]*2 + y )
-      ty2 = min( cols-1, target_patch[2]*2 + y )
+      tx1 = target_patch[0]*2 + x
+      tx2 = target_patch[2]*2 + x 
+      ty1 = target_patch[1]*2 + y
+      ty2 = target_patch[3]*2 + y
 
-      cx1 = candidate_patch[1]*2
+      if ty1 < 0 or ty2 > rows-1 or tx1 < 0 or tx2 > cols-1 :
+        continue
+
+      cx1 = candidate_patch[0]*2
       cx2 = cx1 + tx2 - tx1 
-      cy1 = candidate_patch[0]*2
+      cy1 = candidate_patch[1]*2
       cy2 = cy1 + ty2 - ty1
 
-      tmat = mat[ tx1:tx2, ty1:ty2 ]
-      cmat = mat[ cx1:cx2, cy1:cy2 ]
+      tmat = mat[ ty1:ty2, tx1:tx2 ]
+      cmat = mat[ cy1:cy2, cx1:cx2 ]
 
       score = numpy.sum( ( tmat - cmat )**2 )
-
-      print score, (x, y)
 
       if ( minOffset == None or score < minScore ):
         minScore = score

@@ -1,0 +1,345 @@
+15 24 0 -1 (10, 6) (10, 6)
+15 24 1 -1 (10, 6) (10, 6)
+15 24 0 -1 (10, 6) (10, 6)
+15 24 1 -1 (10, 6) (10, 6)
+15 24 1 -1 (10, 6) (10, 6)
+15 24 0 -1 (10, 6) (10, 6)
+15 24 0 -1 (10, 6) (10, 6)
+15 24 0 -1 (10, 6) (10, 6)
+15 24 1 -1 (10, 6) (10, 6)
+16 24 0 -1 (10, 6) (10, 6)
+16 24 1 -1 (10, 6) (10, 6)
+16 24 1 -1 (10, 6) (10, 6)
+16 24 0 -1 (10, 6) (10, 6)
+16 24 0 -1 (10, 6) (10, 6)
+16 24 1 -1 (10, 6) (10, 6)
+16 24 1 -1 (10, 6) (10, 6)
+16 24 0 -1 (10, 6) (10, 6)
+16 24 1 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 1 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 1 -1 (10, 6) (10, 6)
+17 24 0 -1 (10, 6) (10, 6)
+17 24 1 -1 (10, 6) (10, 6)
+18 24 1 -1 (10, 6) (10, 6)
+18 24 0 -1 (10, 6) (10, 6)
+18 24 0 -1 (10, 6) (10, 6)
+18 24 1 -1 (10, 6) (10, 6)
+18 24 0 -1 (10, 6) (10, 6)
+18 24 0 -1 (10, 6) (10, 6)
+18 24 0 -1 (10, 6) (10, 6)
+18 24 1 -1 (10, 6) (10, 6)
+18 24 1 -1 (10, 6) (10, 6)
+19 24 1 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+19 24 1 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+19 24 1 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+19 24 0 -1 (10, 6) (10, 6)
+20 24 1 -1 (10, 6) (10, 6)
+20 24 0 -1 (10, 6) (10, 6)
+20 24 1 -1 (10, 6) (10, 6)
+20 24 0 -1 (10, 6) (10, 6)
+20 24 0 -1 (10, 6) (10, 6)
+20 24 1 -1 (10, 6) (10, 6)
+20 24 1 -1 (10, 6) (10, 6)
+20 24 0 -1 (10, 6) (10, 6)
+20 24 0 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+21 24 0 -1 (10, 6) (10, 6)
+21 24 0 -1 (10, 6) (10, 6)
+21 24 0 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+21 24 1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+22 24 -1 -1 (10, 6) (10, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+23 24 -1 -1 (8, 6) (8, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+24 24 -1 -1 (6, 6) (6, 6)
+>>> high_mat[0]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'high_mat' is not defined
+>>> high_val[0]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[1]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[2]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[3]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[4]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[5]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[6]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[7]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[8]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[9]
+array([ 0.02757884,  0.02757884,  0.0235476 , ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[14]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> high_val[13]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> high_val[15]
+array([ 0.02757884,  0.02757884,  0.0235476 , ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[16]
+array([ 0.02757884,  0.02757884,  0.0235476 , ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[17]
+array([ 0.02757884,  0.02757884,  0.0235476 , ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[18]
+array([ 0.00824188,  0.00824188,  0.00703715, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[19]
+array([ 0.00824188,  0.00824188,  0.00703715, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[20]
+array([ 0.00824188,  0.00824188,  0.00703715, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[21]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> b,resid = scipy.optimize.nnls( high_val, low_val )
+>>> sophia.a2i( b.reshape( width*2, height*2 ) ).show()
+>>> b
+array([   0.        ,  938.83824712,    0.        , ...,    0.        ,
+          0.        ,    0.        ])
+>>> reload( sr )
+<module 'superres' from 'project/superres.py'>
+>>> low_val, high_val = sr.patchSimilarityZoom( mat_low )
+width 25 height 25
+row: 0 / 25
+row: 1 / 25
+row: 2 / 25
+row: 3 / 25
+row: 4 / 25
+row: 5 / 25
+row: 6 / 25
+row: 7 / 25
+row: 8 / 25
+row: 9 / 25
+row: 10 / 25
+row: 11 / 25
+row: 12 / 25
+row: 13 / 25
+row: 14 / 25
+row: 15 / 25
+row: 16 / 25
+row: 17 / 25
+row: 18 / 25
+row: 19 / 25
+row: 20 / 25
+row: 21 / 25
+row: 22 / 25
+row: 23 / 25
+row: 24 / 25
+>>> width, height = mat_low.shape
+>>> width
+25
+>>> height
+25
+>>> high_val[0]
+array([ 0.06037834,  0.06037834,  0.05155276, ...,  0.        ,
+        0.        ,  0.        ])
+>>> high_val[9*20]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> high_val[9*20+1]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> high_val[9*20+2]
+array([ 0.,  0.,  0., ...,  0.,  0.,  0.])
+>>> high_val[9*20+2] == high_val[9*20+1]
+array([ True,  True,  True, ...,  True,  True,  True], dtype=bool)
+>>> numpy.sum( high_val[9*20+2] == high_val[9*20+1] )
+2428
+>>> numpy.sum( high_val[9*20+3] == high_val[9*20+1] )
+2428
+>>> numpy.sum( high_val[9*20+4] == high_val[9*20+1] )
+2500
+>>> numpy.sum( high_val[9*20+5] == high_val[9*20+1] )
+2440
+>>> numpy.sum( high_val[9*20+6] == high_val[9*20+1] )
+2500
+>>> numpy.sum( high_val[9*20+7] == high_val[9*20+1] )
+2440
+>>> numpy.sum( high_val[9*20+8] == high_val[9*20+1] )
+2500
+>>> numpy.sum( high_val[9*20+9] == high_val[9*20+1] )
+2440
+>>> numpy.sum( high_val[9*20+10] == high_val[9*20+1] )
+2500
+>>> numpy.sum( high_val[9*20+20] == high_val[9*20+1] )
+2428
+>>> numpy.sum( high_val[9*20+200] == high_val[9*20+1] )
+2378
+>>> numpy.sum( high_val[9*20+3000] == high_val[9*20+1] )
+2340
+>>> sophia.a2i( b.reshape( width*2, height*2 ) ).show()
+>>> sophia.a2i( high_val[200].reshape( width*2, height*2 ) ).show()
+>>> sophia.a2i( high_val[2000].reshape( width*2, height*2 ) ).show()
+>>> low_val
+array([ 116.,  115.,  118., ...,  211.,  241.,  237.])
+>>> low_val[ 300: 310
+... ]
+array([ 115.,  107.,  112.,  106.,  113.,  115.,  184.,  107.,  115.,  109.])
+>>> low_val[ 3000: 3100 ]
+array([  85.,   60.,   92.,   99.,   90.,  106.,   88.,  101.,  103.,
+         85.,  106.,  105.,   99.,   86.,  107.,  106.,  111.,  109.,
+        105.,  113.,  113.,  110.,  116.,  113.,  116.,  113.,  112.,
+        115.,  109.,  113.,  119.,  108.,  111.,  118.,  114.,  115.,
+        111.,  110.,  116.,  119.,  113.,  110.,  116.,  117.,  193.,
+        115.,  112.,  114.,  117.,  114.,  121.,  114.,  114.,  113.,
+        122.,  118.,  207.,  115.,  198.,  116.,  115.,  117.,  119.,
+        122.,  114.,  114.,  114.,  118.,  198.,  112.,  115.,  228.,
+        115.,  114.,  114.,  121.,  115.,  109.,  113.,  115.,  115.,
+        113.,  107.,  184.,  114.,  116.,  205.,  117.,  114.,  113.,
+        111.,  105.,  120.,  105.,  113.,  110.,  116.,  105.,  113.,  110.])
+>>> import boundedlsq
+>>> b = boundedlsq.bounded_lsq( high_val, low_val, 0, 255 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 64, in mls
+    u=np.mean(umin+umax,0)[:,None]                
+IndexError: 0-d arrays can only use a single () or a list of newaxes (and a single ...) as an index
+>>> low_val.shape
+(5625,)
+>>> low_val.reshape( ( 5625, 1 ) )
+array([[ 116.],
+       [ 115.],
+       [ 118.],
+       ..., 
+       [ 211.],
+       [ 241.],
+       [ 237.]])
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5635, 1 )), 0, 255 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: total size of new array must be unchanged
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), 0, 255 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 64, in mls
+    u=np.mean(umin+umax,0)[:,None]                
+IndexError: 0-d arrays can only use a single () or a list of newaxes (and a single ...) as an index
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), 0., 255. )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 64, in mls
+    u=np.mean(umin+umax,0)[:,None]                
+IndexError: 0-d arrays can only use a single () or a list of newaxes (and a single ...) as an index
+>>> import numpy as np
+>>> high_val.shape
+(5625, 2500)
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( ( 2500, 1 ) )., np.ones( ( 2500, 1 ) ) * 255. )
+  File "<stdin>", line 1
+    b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( ( 2500, 1 ) )., np.ones( ( 2500, 1 ) ) * 255. )
+                                                                                                ^
+SyntaxError: invalid syntax
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( ( 2500, 1 ) ), np.ones( ( 2500, 1 ) ) * 255. )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 77, in mls
+    A=Wv.dot(B).dot(np.linalg.pinv(Wu))    
+AttributeError: 'numpy.ndarray' object has no attribute 'dot'
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( 2500 ), np.ones( 2500 ) * 255. )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 64, in mls
+    u=np.mean(umin+umax,0)[:,None]                
+IndexError: 0-d arrays can only use a single () or a list of newaxes (and a single ...) as an index
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( ( 2500, 1 ) ), np.ones( ( 2500, 1 ) ) * 255. )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 192, in bounded_lsq
+    return mls(A,b,lower_lim,upper_lim)
+  File "project/boundedlsq.py", line 77, in mls
+    A=Wv.dot(B).dot(np.linalg.pinv(Wu))    
+AttributeError: 'numpy.ndarray' object has no attribute 'dot'
+>>> a1 =  np.zeros( ( 2500, 1 ) )
+>>> a2 =  np.zeros( ( 2500, 1 ) )
+>>> a1.dot( a2 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'numpy.ndarray' object has no attribute 'dot'
+>>> np.dot( a1, a2 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: matrices are not aligned
+>>> reload( boundedlsq)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 83
+    xmin = (umin-ud)
+       ^
+SyntaxError: invalid syntax
+>>> reload( boundedlsq)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "project/boundedlsq.py", line 104
+    p=np.zeros((m,1))
+    ^
+SyntaxError: invalid syntax
+>>> np.dot( a1, a2 )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: matrices are not aligned
+>>> reload( boundedlsq)
+<module 'boundedlsq' from 'project/boundedlsq.py'>
+>>> b = boundedlsq.bounded_lsq( high_val, low_val.reshape(( 5625, 1 )), np.zeros( ( 2500, 1 ) ), np.ones( ( 2500, 1 ) ) * 255. )
+

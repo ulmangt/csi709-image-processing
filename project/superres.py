@@ -34,7 +34,11 @@ def main2():
     val = numpy.dot( high_val, x )
     return numpy.sum( ( low_val - val )**2 )
 
-  x0 = numpy.ones( high_size ) * 128.
+  #x0 = numpy.ones( high_size ) * 128.
+
+  # nearest neighbor zoom matrix used for initial guess
+  mat_nn = nearestNeighborZoom( mat_low )
+  x0 = mat_nn.ravel( )
   
   x_bounds = []
   for i in range( high_size ):
@@ -48,15 +52,47 @@ def main2():
   #sophia.a2i( high_mat[0].reshape( width*2, height*2 ) ).show()
   #return high_mat, low_val, high_val
 
+  #b,resid = scipy.optimize.nnls( high_val, low_val )
+  #sophia.a2i( b.reshape( width*2, height*2 ) ).show()
+
+def writeAmplData( file_name, low_val, high_val ):
+  """
+  Writes an AMPL .dat file to solve the bounded least squares optimization
+  problem constructed by patchSimilarityZoom( )
+  """
+
+  l,n = high_val.shape
+
+  f = open(file_name, 'w')
+
+  f.write( 'data;\n' )
+  f.write( 'param l := %d;\n' % l )
+  f.write( 'param n := %d;\n' % n )
+
+  f.write( 'param y :=\n' )
+  for i in xrange( l ) :
+    f.write( ' %d %d\n' % ( i+1, low_val[i] ) )
+
+  f.write( 'param x : %s\n' %  " ".join( map( str, range( 1, n+1 ) ) ) )
+  for i in xrange( l ) :
+    f.write( ' %d %s\n' % ( i, " ".join( map( str, high_val[i] ) ) ) )
+
+  f.write( ';\n' )
+
+  f.close()
+
+
 def loadImage( path, crop=None ):
   """
   Loads the image at the provided path, crops it, and returns a matrix
   representation of the image converted to grayscale.
   """
+  
   if crop:
     return sophia.i2a( Image.open( findFile( path ) ).crop( crop ).convert( 'L' ) )
   else:
     return sophia.i2a( Image.open( findFile( path ) ).convert( 'L' ) )
+
 
 def nearestNeighborZoom( mat ):
   """
@@ -67,6 +103,7 @@ def nearestNeighborZoom( mat ):
 
   # make four copies of each low resolution pixel
   return mat.repeat( 2, axis=0 ).repeat( 2, axis= 1 );
+
 
 def bilinearZoom( mat ):
   """

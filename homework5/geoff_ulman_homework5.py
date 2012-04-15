@@ -9,9 +9,9 @@ def main_allboats( fp=0 ):
   Train to detect all 18 boat images and provide two clutter images which are
   trained against (images of the shiny peaks on the docks).
   """
-  boats = loadImages( 18, "boat", "png" )
-  clutter = loadImages( 2, "clutter", "png" )
-  return findBoats( fp, "boatsmall.jpg", boats, clutter )
+  boats = loadImages( 18, "boat_images/boat", "png" )
+  clutter = loadImages( 2, "boat_images/clutter", "png" )
+  return findBoats( fp, "boat_images/boatsmall.jpg", boats, clutter )
 
 
 def main_missingboat( fp=0 ):
@@ -19,9 +19,9 @@ def main_missingboat( fp=0 ):
   Train to detect 16 of the boat images and train against the two large
   boat images on the southern portion of the dock.
   """
-  boats = loadImages( 16, "boat", "png" )
-  clutter = [ loadMatrix( "boat16.png" ), loadMatrix( "boat17.png" ) ]
-  return findBoats( fp, "boatsmall.jpg", boats, clutter )
+  boats = loadImages( 16, "boat_images/boat", "png" )
+  clutter = [ loadMatrix( "boat_images/boat16.png" ), loadMatrix( "boat_images/boat17.png" ) ]
+  return findBoats( fp, "boat_images/boatsmall.jpg", boats, clutter )
 
 
 def findBoats( fp, image_name, boats, clutter ):
@@ -106,7 +106,7 @@ def loadMatrix( name ):
   image = Image.open( findfile( name ) ).convert( 'L' )
   return sophia.i2a( image ).astype( float ) / 255
 
-def buildBorderMask( name="boatsmall.jpg" ):
+def buildBorderMask( name="boat_images/boatsmall.jpg" ):
   """
   Mask the area around the edge of the dock so that spurrious
   detections do not show up there.

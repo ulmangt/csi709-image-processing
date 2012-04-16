@@ -71,15 +71,24 @@ def writeAmplData( file_name, low_val, high_val ):
 
   f.write( 'param y :=\n' )
   for i in xrange( l ) :
-    f.write( ' %d %d\n' % ( i+1, low_val[i] ) )
+    f.write( ' %d %d\n' % ( i+1, int( low_val[i] ) ) )
 
-  f.write( 'param x : %s\n' %  " ".join( map( str, range( 1, n+1 ) ) ) )
+  f.write( ';\n' )
+
+  f.write( 'param x: %s :=\n' %  " ".join( map( str, range( 1, n+1 ) ) ) )
   for i in xrange( l ) :
-    f.write( ' %d %s\n' % ( i, " ".join( map( str, high_val[i] ) ) ) )
+    f.write( ' %d %s\n' % ( i+1, " ".join( map( amplFormatter, high_val[i] ) ) ) )
 
   f.write( ';\n' )
 
   f.close()
+
+
+def amplFormatter( x ):
+  if x == 0:
+    return str( 0 )
+  else:
+    return str( x )
 
 
 def loadImage( path, crop=None ):

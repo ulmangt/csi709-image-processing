@@ -1,0 +1,3 @@
+http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp
+http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.nnls.html
+http://scipy-central.org/item/17/3/pymls-solving-bounded-linear-least-squares-problems

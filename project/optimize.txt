@@ -1,3 +1,37 @@
+
+Traditional Superresolution
+
+Single Image Superresolution:
+
+ (nearest neighbor, bilinear)
+
+Describe patch superresolution algorithm
+
+Image from paper
+
+Show example of similar patches
+
+Mathematical model -> high res to low res image
+
+Show example of constraints
+
+Python solvers:
+
 http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp
 http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.nnls.html
 http://scipy-central.org/item/17/3/pymls-solving-bounded-linear-least-squares-problems
+
+NEOS Ampl solver:
+
+http://www.neos-server.org/
+
+Show Ampl model
+
+Poor results (why?)
+ - adjust patch constraint weights based on similarity
+ - had to work with small images, less opportunity for good patch similarity
+
+
+Describe multi-scale method (generalization of single-scale patch based)
+
+Examples from: http://www.wisdom.weizmann.ac.il/~vision/SingleImageSR.html

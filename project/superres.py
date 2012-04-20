@@ -360,8 +360,8 @@ def createGaussianKernel( x, y, width, height, size ):
   # create a 5x5 gaussian kernel approximation
   # adapted from: http://scipy-lectures.github.com/intro/numpy/numpy.html
   # with x values ranging from -4 to 4
-  kernelx = numpy.linspace( -4, 4, size )
-  kernel = numpy.exp( -0.6*kernelx**2 )
+  kernelx = numpy.linspace( -2, 2, size )
+  kernel = numpy.exp( -1.0*kernelx**2 )
   # treat the 1d kernel as a column vector times a row vector
   # resulting in a 2d kernel matrix
   kernel = kernel[:,numpy.newaxis] * kernel[numpy.newaxis,:]

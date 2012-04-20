@@ -101,6 +101,32 @@ def writeAmplData( file_name, low_val, high_val ):
 
   f.close()
 
+def writeAmplDataSparse( file_name, low_val, high_val ):
+
+  l,n = high_val.shape
+
+  f = open(file_name, 'w')
+
+  f.write( 'data;\n' )
+  f.write( 'param l := %d;\n' % l )
+  f.write( 'param n := %d;\n' % n )
+
+  f.write( 'param y :=\n' )
+  for i in xrange( l ) :
+    f.write( ' %d %d\n' % ( i+1, int( low_val[i] ) ) )
+
+  f.write( ';\n' )
+
+  f.write( 'param x default 0.0 :=\n' )
+  for i in xrange( l ) :
+    for j in xrange( n ) :
+      val = high_val[i,j]
+      if val != 0:
+        f.write( '%d %d %f\n' % ( i+1, j+1, val ) )
+
+  f.write( ';\n' )
+
+  f.close()
 
 def readAmplData( file_name, size ):
   """
@@ -199,7 +225,7 @@ def bilinearZoom( mat ):
   return high_mat
 
 
-def patchSimilarityZoom( mat, size=5, k=9 ):
+def patchSimilarityZoom( mat, size=5, k=9, sr=1 ):
   """
   Zooms image 2x.
   Utilizes patch similarity within the single image. For each 5x5 subsection of the image,
@@ -260,7 +286,7 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
         patch, weight = p
         px1,py1,px2,py2 = patch
 
-        dx,dy = evaluateSubPixelOffset( mat_nn, target_patch, patch, 1 )
+        dx,dy = evaluateSubPixelOffset( mat_nn, target_patch, patch, sr )
 
         # stick the kernel into the appropriate place in the matrix
         # (given my the patch p) then ravel the matrix into a
@@ -279,6 +305,9 @@ def patchSimilarityZoom( mat, size=5, k=9 ):
 
 def evaluateSubPixelOffset( mat, target_patch, candidate_patch, search_radius ):
   
+  if search_radius <= 0 :
+    return ( 0, 0 )
+
   rows, cols = mat.shape
 
   minOffset = None

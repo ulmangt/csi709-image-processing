@@ -79,7 +79,7 @@ L_j = \left( H \otimes B_j \right) \left( q \right) \downarrow s_j
 
 \begin{frame}{Multiple Frame Super-Resolution}
 
-We can write an equation describing each pixel \(L_j(p)\) of the low resolution image in terms of nearby pixels \(H(q_i)\) in the high resolution image.
+We can write an equation describing each pixel \(L_j(p)\) of the \(j^{th}\) low resolution image in terms of nearby pixels \(H(q_i)\) in the high resolution image.
 
 \begin{figure}
 \begin{equation}
@@ -95,5 +95,63 @@ For large enough \(j\) this system becomes \emph{over determined} and we can use
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{What If We Only Have One Image?}
+
+\vspace{0.3cm}
+
+Images often contain many similar regions.
+
+\vspace{0.3cm}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{boatsmall_similar_patches.jpg}
+\caption{Similar patches within a single image}
+\end{figure}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{What If We Only Have One Image?}
+
+Break up the problem into many small multiple image super resolution problems.
+
+\vspace{0.3cm}
+
+For each small patch of the image:
+
+\begin{figure}
+\centering
+\includegraphics[width=0.1\textwidth]{similar_patches_3.png}
+\end{figure}
+
+Search the entire image for similar patches:
+
+\begin{figure}
+\centering
+\includegraphics[width=0.35\textwidth]{similar_patches_2.png}
+\end{figure}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{What If We Only Have One Image?}
+
+Now we're back to the multiple image super resolution formulation (at least for this small portion of the image).
+
+\vspace{0.3cm}
+
+In practice, the patches are quite small ( around 5 by 5 pixels ):
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{similar_patches_1.png}
+\end{figure}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}

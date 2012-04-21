@@ -1,0 +1,51 @@
+row: 16 / 30
+row: 17 / 30
+row: 18 / 30
+row: 19 / 30
+row: 20 / 30
+row: 21 / 30
+row: 22 / 30
+row: 23 / 30
+row: 24 / 30
+row: 25 / 30
+row: 26 / 30
+row: 27 / 30
+row: 28 / 30
+row: 29 / 30
+>>> sr.writeAmplDataSparse( '/home/ulman/CSI709/csi709-image-processing/project/test3.dat', low_val, high_val )
+>>> mat = sr.readAmplData( '/home/ulman/CSI709/csi709-image-processing/project/ampl3.txt', 3600 )
+>>> sophia.a2i( mat.reshape( width*2, height*2 ) ).show()>>> low_val, high_val = sr.patchSimilarityZoom( mat_low, size = 3, k=9, sr=2 )width 30 height 30
+row: 0 / 30
+row: 1 / 30
+row: 2 / 30
+row: 3 / 30
+row: 4 / 30
+row: 5 / 30
+row: 6 / 30
+row: 7 / 30
+row: 8 / 30
+row: 9 / 30
+row: 10 / 30
+row: 11 / 30
+row: 12 / 30
+row: 13 / 30
+row: 14 / 30
+row: 15 / 30
+row: 16 / 30
+row: 17 / 30
+row: 18 / 30
+row: 19 / 30
+row: 20 / 30
+row: 21 / 30
+row: 22 / 30
+row: 23 / 30
+row: 24 / 30
+row: 25 / 30
+row: 26 / 30
+row: 27 / 30
+row: 28 / 30
+row: 29 / 30
+>>> sr.writeAmplDataSparse( '/home/ulman/CSI709/csi709-image-processing/project/test4.dat', low_val, high_val )
+>>> mat = sr.readAmplData( '/home/ulman/CSI709/csi709-image-processing/project/ampl4.txt', 3600 )
+>>> sophia.a2i( mat.reshape( width*2, height*2 ) ).show()>>> 
+

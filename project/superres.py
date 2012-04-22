@@ -1,7 +1,7 @@
 import os, sys, scipy, numpy, Image, sophia, operator
 from numpy import sum, sqrt, zeros, array
 
-def main():
+def main_patch_test():
   # load a small section of the boat image
   mat_low = loadImage( 'boatsmall.jpg', (100,150,125,175) ).astype(float)
 
@@ -21,14 +21,14 @@ def main():
   mat_patch = displayPatches( mat_low, d, 5, 5 )
   sophia.a2if( mat_patch ).show() 
 
-def main2():
+def main_slsqp():
   # load a small section of the boat image
   mat_low = loadImage( 'boatsmall.jpg', (100,150,125,165) ).astype(float)
 
   width, height = mat_low.shape
   high_size = width * 2 * height * 2
 
-  low_val, high_val = patchSimilarityZoom( mat_low )
+  low_val, high_val, score = patchSimilarityZoom( mat_low )
 
   def objective_fun( x ):
     val = numpy.dot( high_val, x )
@@ -48,30 +48,45 @@ def main2():
 
   return out, fx, its, imode, smode
 
-def main3():
+def main_lstsq():
   # load a small section of the boat image
   mat_low = loadImage( 'boatsmall.jpg', (100,150,125,165) ).astype(float)
 
   width, height = mat_low.shape
   high_size = width * 2 * height * 2
 
-  low_val, high_val = patchSimilarityZoom( mat_low, size = 5, k=9 )
+  low_val, high_val, score = patchSimilarityZoom( mat_low, size = 5, k=9 )
 
   high_mat = numpy.linalg.lstsq( high_val, low_val )
   sophia.a2i( high_mat[0].reshape( width*2, height*2 ) ).show()
   return high_mat, low_val, high_val
 
-def main4():
+def main_nnls():
   # load a small section of the boat image
   mat_low = loadImage( 'boatsmall.jpg', (100,150,125,165) ).astype(float)
 
   width, height = mat_low.shape
   high_size = width * 2 * height * 2
 
-  low_val, high_val = patchSimilarityZoom( mat_low )
+  low_val, high_val, score = patchSimilarityZoom( mat_low )
 
   b,resid = scipy.optimize.nnls( high_val, low_val )
   sophia.a2i( b.reshape( width*2, height*2 ) ).show()
+
+def main_ampl():
+  # load a small section of the boat image
+  mat_low = loadImage( 'boatsmall.jpg', (140,140,170,170) ).astype(float)
+
+  width, height = mat_low.shape
+  high_size = width * 2 * height * 2
+
+  low_val, high_val, score = patchSimilarityZoom( mat_low, size=3, k=9, sr=2 )
+  #low_val, high_val, score = patchSimilarityZoom( mat_low, size=1, k=9, sr=0 )
+
+  writeAmplDataSparse( 'ampl.dat', low_val, high_val, score )
+
+  return low_val, high_val, score
+
 
 def writeAmplData( file_name, low_val, high_val ):
   """
@@ -101,7 +116,7 @@ def writeAmplData( file_name, low_val, high_val ):
 
   f.close()
 
-def writeAmplDataSparse( file_name, low_val, high_val ):
+def writeAmplDataSparse( file_name, low_val, high_val, score ):
 
   l,n = high_val.shape
 
@@ -116,6 +131,15 @@ def writeAmplDataSparse( file_name, low_val, high_val ):
     f.write( ' %d %d\n' % ( i+1, int( low_val[i] ) ) )
 
   f.write( ';\n' )
+
+  max_score = numpy.max( score )
+
+  f.write( 'param w :=\n' )
+  for i in xrange( l ) :
+    f.write( ' %d %f\n' % ( i+1, 1.0 - numpy.sqrt( score[i] / max_score ) ) )
+
+  f.write( ';\n' )
+
 
   f.write( 'param x default 0.0 :=\n' )
   for i in xrange( l ) :
@@ -188,19 +212,19 @@ def bilinearZoom( mat ):
   mat = nearestNeighborZoom( mat )
   high_mat = zeros( mat.shape )
 
-  for x in xrange( 1, mat.shape[0]-1 ):
-    for y in xrange( 1, mat.shape[1]-1 ):
+  for x in xrange( 0, mat.shape[0]-1 ):
+    for y in xrange( 0, mat.shape[1]-1 ):
 
       # name the indices of the four surrounding pixels
       # in the same manner as Bovik in Handbook of Image and Video Processing
       n10 = x
-      n20 = y-1
+      n20 = y
 
-      n11 = x
-      n21 = y+1  
+      n11 = x+1
+      n21 = y  
 
-      n12 = x-1
-      n22 = y 
+      n12 = x
+      n22 = y+1 
 
       n13 = x+1
       n23 = y+1
@@ -215,8 +239,11 @@ def bilinearZoom( mat ):
 
       try:
 
+        x1 = x + 0.5
+        y1 = y + 0.5
+
         coef = numpy.linalg.solve( A, b )
-        high_mat[x,y] = coef[0] + coef[1]*x + coef[2]*y + coef[3]*x*y
+        high_mat[x,y] = coef[0] + coef[1]*x1 + coef[2]*y1 + coef[3]*x1*y1
  
       except numpy.linalg.linalg.LinAlgError as err:
  
@@ -252,12 +279,13 @@ def patchSimilarityZoom( mat, size=5, k=9, sr=1 ):
   # build the linear constraint matrices
   # create an array of low resolution pixel intensities
   low_val = numpy.zeros( low_size*k, float )
+  # the similarity score for each constraint, used
+  # to calculate global weighting in optimization function
+  score = numpy.zeros( low_size*k, float )
   # create a matrix for the high resolution constraints
   # one column for each pixel in the high resolution image
   # and one row for each constraint
   high_val = numpy.zeros( (low_size*k , high_size) , float )
-
-  print "width", width, "height", height
 
   # loop over pixels in the low resolution image
   index = 0
@@ -296,12 +324,14 @@ def patchSimilarityZoom( mat, size=5, k=9, sr=1 ):
         constraint = numpy.zeros( ( high_height, high_width ), float )
 
         constraint[(y1*2+dy):(y2*2+dy),(x1*2+dx):(x2*2+dx)] = kernel
+        
         high_val[index] = constraint.ravel( )
-
         low_val[index] = mat[py1 - yoffset,px1 - xoffset]
+        score[index] = weight 
+
         index = index + 1
 
-  return low_val, high_val
+  return low_val, high_val, score
 
 def evaluateSubPixelOffset( mat, target_patch, candidate_patch, search_radius ):
   
@@ -361,7 +391,7 @@ def createGaussianKernel( x, y, width, height, size ):
   # adapted from: http://scipy-lectures.github.com/intro/numpy/numpy.html
   # with x values ranging from -4 to 4
   kernelx = numpy.linspace( -2, 2, size )
-  kernel = numpy.exp( -1.0*kernelx**2 )
+  kernel = numpy.exp( -2.0*kernelx**2 )
   # treat the 1d kernel as a column vector times a row vector
   # resulting in a 2d kernel matrix
   kernel = kernel[:,numpy.newaxis] * kernel[numpy.newaxis,:]
